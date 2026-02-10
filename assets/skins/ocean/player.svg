@@ -1,0 +1,19 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Clownfish Body (Orange) -->
+  <path d="M56 32 Q 56 12 32 12 Q 8 12 4 32 Q 8 52 32 52 Q 56 52 56 32 Z" fill="#FF9800"/>
+  
+  <!-- Tail -->
+  <path d="M54 32 L62 20 L62 44 Z" fill="#FF9800"/>
+  
+  <!-- Stripes (White with Black Outline) -->
+  <path d="M16 12 Q 20 32 16 52 L 20 52 Q 24 32 20 12 Z" fill="#FFF" stroke="#000" stroke-width="2"/>
+  <path d="M36 12 Q 40 32 36 52 L 40 52 Q 44 32 40 12 Z" fill="#FFF" stroke="#000" stroke-width="2"/>
+  
+  <!-- Eye -->
+  <circle cx="12" cy="28" r="4" fill="#FFF"/>
+  <circle cx="12" cy="28" r="2" fill="#000"/>
+  
+  <!-- Fins -->
+  <path d="M32 52 L 28 60 L 36 60 Z" fill="#FF9800" stroke="#E65100" stroke-width="1"/>
+  <path d="M32 12 L 24 4 L 40 4 Z" fill="#FF9800" stroke="#E65100" stroke-width="1"/>
+</svg>

@@ -1,0 +1,11 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Knight Helmet -->
+  <path d="M16 16 L48 16 L48 40 Q 48 56 32 56 Q 16 56 16 40 Z" fill="#B0BEC5" stroke="#78909C" stroke-width="2"/>
+  
+  <!-- Visor -->
+  <rect x="20" y="24" width="24" height="4" rx="1" fill="#37474F"/>
+  <rect x="30" y="24" width="4" height="16" rx="1" fill="#37474F"/>
+  
+  <!-- Plume -->
+  <path d="M32 4 Q 48 4 52 16 L44 16 Q 40 8 32 8 Z" fill="#D32F2F"/>
+</svg>

@@ -1,0 +1,3595 @@
+:root {
+    --bg-color: #1a1a1a;
+    --grid-bg: #222;
+    --grid-line: #333;
+    --player-color: #0f0;
+    --zombie-color: #f00;
+    --wall-color: #0ff;
+    --exit-color: #ff0;
+    --text-color: #eee;
+    --font-main: 'Courier Prime', monospace;
+    --font-header: 'Orbitron', sans-serif;
+
+    --glow-player: 0 0 10px var(--player-color), 0 0 20px var(--player-color);
+    --glow-zombie: 0 0 10px var(--zombie-color);
+    --glow-wall: 0 0 5px var(--wall-color);
+    --glow-exit: 0 0 15px var(--exit-color);
+}
+
+* {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-main);
+    overflow: hidden;
+    /* Prevent scrolling for game app feel */
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#app {
+    width: 100%;
+    max-width: 600px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+    position: relative;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-family: var(--font-header);
+    color: var(--player-color);
+    text-shadow: 0 0 5px var(--player-color);
+    font-size: 1.5rem;
+    margin: 0 0 10px 0;
+    letter-spacing: 2px;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+#game-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.grid-container {
+    display: grid;
+    /* Grid template columns will be set by JS */
+    background-color: var(--grid-bg);
+    border: 2px solid var(--grid-line);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    /* Force square */
+    max-height: 80vh;
+    /* Don't overflow screen */
+}
+
+.cell {
+    width: 100%;
+    height: 100%;
+    /* Aspect ratio handled by grid setup in JS or container */
+    border: 1px solid var(--grid-line);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    /* Emoji size */
+    position: relative;
+}
+
+/* Coordinate labels for local debugging (A1, B2, etc.) */
+.coord-label {
+    position: absolute;
+    bottom: 1px;
+    right: 2px;
+    font-size: 0.5rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: monospace;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Entities */
+.player {
+    background-color: rgba(0, 255, 0, 0.2);
+    box-shadow: inset 0 0 10px var(--player-color);
+    position: relative;
+}
+
+.player::after {
+    content: '';
+    width: 60%;
+    height: 60%;
+    background-color: var(--player-color);
+    border-radius: 50%;
+    box-shadow: var(--glow-player);
+}
+
+.zombie {
+    background-color: rgba(255, 0, 0, 0.2);
+    box-shadow: inset 0 0 10px var(--zombie-color);
+    position: relative;
+}
+
+.zombie::after {
+    content: '';
+    width: 70%;
+    /* Zombies are slightly larger/scarier */
+    height: 70%;
+    background-color: var(--zombie-color);
+    transform: rotate(45deg);
+    /* Diamond shape for zombie */
+    box-shadow: var(--glow-zombie);
+}
+
+.wall {
+    background-color: rgba(0, 255, 255, 0.1);
+    border: 1px solid var(--wall-color);
+    box-shadow: var(--glow-wall);
+}
+
+.exit {
+    background-color: rgba(255, 255, 0, 0.1);
+    border: 1px dashed var(--exit-color);
+    box-shadow: var(--glow-exit);
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 5px var(--exit-color);
+    }
+
+    50% {
+        box-shadow: 0 0 20px var(--exit-color);
+    }
+
+    100% {
+        box-shadow: 0 0 5px var(--exit-color);
+    }
+}
+
+/* Overlay */
+#message-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    backdrop-filter: blur(5px);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ==================== FULLSCREEN MENU OVERLAY ==================== */
+#fullscreen-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, rgba(10, 10, 15, 0.98), rgba(20, 20, 30, 0.98));
+    backdrop-filter: blur(20px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: menuFadeIn 0.3s ease-out;
+}
+
+@keyframes menuFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.menu-container {
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    padding: 30px;
+}
+
+#menu-title {
+    font-family: var(--font-header);
+    font-size: 2.5rem;
+    color: var(--player-color);
+    text-shadow: 0 0 30px var(--player-color), 0 0 60px var(--player-color);
+    letter-spacing: 4px;
+    margin: 0;
+    text-transform: uppercase;
+    animation: titleGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlow {
+    from {
+        text-shadow: 0 0 20px var(--player-color), 0 0 40px var(--player-color);
+    }
+
+    to {
+        text-shadow: 0 0 30px var(--player-color), 0 0 60px var(--player-color), 0 0 80px var(--player-color);
+    }
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    width: 100%;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--player-color) transparent;
+}
+
+.menu-grid::-webkit-scrollbar {
+    width: 6px;
+}
+
+.menu-grid::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.menu-grid::-webkit-scrollbar-thumb {
+    background: var(--player-color);
+    border-radius: 3px;
+}
+
+/* ==================== SKIN CARDS / MENU ITEMS ==================== */
+.menu-item {
+    background: linear-gradient(145deg, rgba(40, 40, 50, 0.8), rgba(25, 25, 35, 0.9));
+    border: 2px solid rgba(100, 100, 120, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    transition: left 0.5s ease;
+}
+
+.menu-item:hover::before {
+    left: 100%;
+}
+
+.menu-item:hover {
+    border-color: var(--wall-color);
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 255, 255, 0.1);
+}
+
+.menu-item.active {
+    border-color: var(--player-color);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3), inset 0 0 30px rgba(0, 255, 0, 0.05);
+}
+
+.menu-item.active::after {
+    content: '✓';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.2rem;
+    color: var(--player-color);
+    text-shadow: 0 0 10px var(--player-color);
+}
+
+.menu-item.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(0.7);
+}
+
+.menu-item.locked::after {
+    content: '🔒';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.2rem;
+}
+
+/* Preview Section - Color swatches */
+.menu-item-preview {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+    justify-content: center;
+}
+
+.preview-part {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.menu-item:hover .preview-part {
+    transform: scale(1.1);
+}
+
+.menu-item-title {
+    font-family: var(--font-header);
+    font-size: 1.1rem;
+    color: var(--text-color);
+    text-align: center;
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+}
+
+.menu-item-desc {
+    font-family: var(--font-main);
+    font-size: 0.8rem;
+    color: rgba(200, 200, 210, 0.7);
+    text-align: center;
+    line-height: 1.4;
+}
+
+/* Close Button at bottom */
+#menu-close-btn {
+    margin-top: 20px;
+    padding: 12px 40px;
+    font-size: 1rem;
+}
+
+/* ==================== THEME PREVIEW CLASSES ==================== */
+/* Apply theme variables to menu items for accurate preview */
+.menu-item.theme-neon {
+    --bg-color: #1a1a1a;
+    --player-color: #0f0;
+    --zombie-color: #f00;
+    --accent-color: #0ff;
+}
+
+.menu-item.theme-classic {
+    --bg-color: #0a1a0a;
+    --player-color: #00ff00;
+    --zombie-color: #ff6600;
+    --accent-color: #33ff33;
+}
+
+.menu-item.theme-graveyard {
+    --bg-color: #1a1510;
+    --player-color: #8bc34a;
+    --zombie-color: #9c27b0;
+    --accent-color: #607d8b;
+}
+
+.menu-item.theme-contrast {
+    --bg-color: #000000;
+    --player-color: #ffffff;
+    --zombie-color: #ffff00;
+    --accent-color: #00ffff;
+}
+
+/* ==================== RESPONSIVE ADJUSTMENTS ==================== */
+@media (max-width: 600px) {
+    #menu-title {
+        font-size: 1.5rem;
+        letter-spacing: 2px;
+    }
+
+    .menu-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+    }
+
+    .menu-item {
+        padding: 15px;
+    }
+
+    .preview-part {
+        width: 25px;
+        height: 25px;
+    }
+
+    .menu-item-title {
+        font-size: 0.9rem;
+    }
+
+    .menu-container {
+        padding: 20px;
+        gap: 20px;
+    }
+}
+
+#message-title {
+    font-family: var(--font-header);
+    font-size: 3rem;
+    margin: 0 0 10px 0;
+    color: var(--zombie-color);
+    /* Default, JS can change to Green for Win */
+    text-shadow: 0 0 10px currentColor;
+    text-transform: uppercase;
+}
+
+.btn {
+    background: transparent;
+    border: 2px solid;
+    padding: 15px 30px;
+    margin: 10px;
+    font-family: var(--font-header);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+}
+
+.btn.primary {
+    border-color: var(--player-color);
+    color: var(--player-color);
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+}
+
+.btn.primary:hover {
+    background: var(--player-color);
+    color: #000;
+    box-shadow: 0 0 20px var(--player-color);
+}
+
+.btn.secondary {
+    border-color: var(--wall-color);
+    color: var(--wall-color);
+}
+
+.btn.secondary:hover {
+    background: var(--wall-color);
+    color: #000;
+}
+
+/* Footer / Controls */
+footer {
+    text-align: center;
+    height: 150px;
+    /* Space for controls */
+}
+
+.controls-hint {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.mobile-hint {
+    display: none;
+}
+
+#mobile-controls {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.dpad-row {
+    display: flex;
+    gap: 10px;
+}
+
+.dpad-btn {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid #444;
+    color: #fff;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dpad-btn:active {
+    background: rgba(0, 255, 0, 0.3);
+    border-color: var(--player-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .desktop-hint {
+        display: none;
+    }
+
+    .mobile-hint {
+        display: inline;
+    }
+
+    #mobile-controls {
+        display: flex;
+    }
+
+    body {
+        padding: 10px;
+    }
+
+    #app {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.2rem;
+    }
+
+    /* Make grid fit */
+    .cell {
+        font-size: 1rem;
+    }
+}
+
+/* ================================================================
+   FOREST THEME - Pixel Art in Spooky Forest
+   ================================================================ */
+
+.theme-forest {
+    --bg-color: #0a1f0a;
+    --grid-bg: #071507;
+    --grid-line: #1a3a1a;
+    --player-color: #4fc3f7;
+    --zombie-color: #7cb342;
+    --wall-color: #2e7d32;
+    --exit-color: #ffd700;
+    --text-color: #a5d6a7;
+}
+
+/* Retro Grid Style - More pixelated feel */
+.theme-forest .grid-container {
+    background-color: var(--grid-bg);
+    border: 3px solid #3d2a6b;
+    box-shadow: 0 0 30px rgba(255, 87, 34, 0.2), inset 0 0 20px rgba(0, 0, 0, 0.5);
+    image-rendering: pixelated;
+}
+
+.theme-forest .cell {
+    border: 1px solid var(--grid-line);
+}
+
+/* ==================== RETRO PLAYER - 8-bit Person ==================== */
+.theme-forest .player {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.theme-forest .player::after {
+    content: '';
+    width: 70%;
+    height: 80%;
+    background: transparent;
+    background-color: transparent !important;
+    border-radius: 0;
+    transform: none;
+    position: relative;
+    /* Using CSS to create a simple 8-bit person silhouette */
+    background-image:
+        /* Head */
+        linear-gradient(to right, transparent 30%, #ffcc80 30%, #ffcc80 70%, transparent 70%),
+        /* Body */
+        linear-gradient(to right, transparent 20%, #4fc3f7 20%, #4fc3f7 80%, transparent 80%),
+        /* Legs */
+        linear-gradient(to right, transparent 25%, #1976d2 25%, #1976d2 45%, transparent 45%, transparent 55%, #1976d2 55%, #1976d2 75%, transparent 75%);
+    background-size:
+        100% 30%,
+        100% 35%,
+        100% 25%;
+    background-position:
+        center 0%,
+        center 35%,
+        center 75%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    /* No glow - only internal details */
+    box-shadow: none !important;
+    animation: playerBob 0.8s ease-in-out infinite;
+}
+
+@keyframes playerBob {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5%);
+    }
+}
+
+/* ==================== RETRO ZOMBIE - 8-bit Monster ==================== */
+.theme-forest .zombie {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.theme-forest .zombie::after {
+    content: '';
+    width: 75%;
+    height: 85%;
+    background: transparent;
+    background-color: transparent !important;
+    border-radius: 0;
+    transform: none;
+    position: relative;
+    /* Using CSS to create a zombie silhouette */
+    background-image:
+        /* Head - green */
+        linear-gradient(to right, transparent 25%, #7cb342 25%, #7cb342 75%, transparent 75%),
+        /* Eyes row */
+        linear-gradient(to right, transparent 25%, #7cb342 25%, #7cb342 35%, #f44336 35%, #f44336 42%, #7cb342 42%, #7cb342 58%, #f44336 58%, #f44336 65%, #7cb342 65%, #7cb342 75%, transparent 75%),
+        /* Mouth */
+        linear-gradient(to right, transparent 25%, #7cb342 25%, #7cb342 40%, #33691e 40%, #33691e 60%, #7cb342 60%, #7cb342 75%, transparent 75%),
+        /* Body - torn clothes */
+        linear-gradient(to right, transparent 20%, #795548 20%, #795548 80%, transparent 80%),
+        /* Legs */
+        linear-gradient(to right, transparent 25%, #5d4037 25%, #5d4037 42%, transparent 42%, transparent 58%, #5d4037 58%, #5d4037 75%, transparent 75%);
+    background-size:
+        100% 20%,
+        100% 15%,
+        100% 12%,
+        100% 28%,
+        100% 20%;
+    background-position:
+        center 0%,
+        center 18%,
+        center 32%,
+        center 48%,
+        center 80%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    box-shadow: none !important;
+    animation: zombieShuffle 0.6s ease-in-out infinite;
+}
+
+/* Zombie arms - extended outward */
+.theme-forest .zombie::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 15%;
+    top: 35%;
+    left: 0;
+    background-image:
+        linear-gradient(to right, #7cb342 0%, #7cb342 15%, transparent 15%, transparent 85%, #7cb342 85%, #7cb342 100%);
+    background-repeat: no-repeat;
+}
+
+@keyframes zombieShuffle {
+
+    0%,
+    100% {
+        transform: translateX(0) rotate(0deg);
+    }
+
+    25% {
+        transform: translateX(-3%) rotate(-2deg);
+    }
+
+    75% {
+        transform: translateX(3%) rotate(2deg);
+    }
+}
+
+/* ==================== FOREST WALL - Tree Sprites ==================== */
+.theme-forest .wall {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.theme-forest .wall::after {
+    content: '';
+    width: 80%;
+    height: 90%;
+    background: transparent;
+    position: relative;
+    /* Tree using CSS gradients */
+    background-image:
+        /* Tree crown - dark green top */
+        linear-gradient(to right, transparent 25%, #1b5e20 25%, #1b5e20 75%, transparent 75%),
+        /* Tree crown - middle */
+        linear-gradient(to right, transparent 15%, #2e7d32 15%, #2e7d32 85%, transparent 85%),
+        /* Tree crown - wide base */
+        linear-gradient(to right, transparent 10%, #388e3c 10%, #388e3c 90%, transparent 90%),
+        /* Trunk */
+        linear-gradient(to right, transparent 35%, #5d4037 35%, #5d4037 65%, transparent 65%);
+    background-size:
+        100% 25%,
+        100% 20%,
+        100% 25%,
+        100% 35%;
+    background-position:
+        center 0%,
+        center 20%,
+        center 40%,
+        center 70%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+}
+
+/* Subtle tree sway animation */
+@keyframes treeSway {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(1deg);
+    }
+}
+
+/* ==================== FOREST EXIT - Pixel Flower ==================== */
+.theme-forest .exit {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.theme-forest .exit::after {
+    content: '';
+    width: 85%;
+    height: 85%;
+    background: transparent;
+    position: relative;
+    /* Pixel flower with petals */
+    background-image:
+        /* Top petal */
+        linear-gradient(to right, transparent 35%, #ff69b4 35%, #ff69b4 65%, transparent 65%),
+        /* Left petal */
+        linear-gradient(to right, transparent 15%, #ff69b4 15%, #ff69b4 35%, transparent 35%, transparent 65%, #ff69b4 65%, #ff69b4 85%, transparent 85%),
+        /* Center - yellow */
+        linear-gradient(to right, transparent 35%, #ffd700 35%, #ffd700 65%, transparent 65%),
+        /* Bottom petals */
+        linear-gradient(to right, transparent 15%, #ff69b4 15%, #ff69b4 35%, transparent 35%, transparent 65%, #ff69b4 65%, #ff69b4 85%, transparent 85%),
+        /* Bottom petal */
+        linear-gradient(to right, transparent 35%, #ff69b4 35%, #ff69b4 65%, transparent 65%),
+        /* Stem */
+        linear-gradient(to right, transparent 45%, #2e7d32 45%, #2e7d32 55%, transparent 55%);
+    background-size:
+        100% 18%,
+        100% 18%,
+        100% 20%,
+        100% 18%,
+        100% 18%,
+        100% 25%;
+    background-position:
+        center 0%,
+        center 15%,
+        center 32%,
+        center 52%,
+        center 68%,
+        center 85%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 6px rgba(255, 105, 180, 0.6));
+    animation: flowerSway 2s ease-in-out infinite;
+}
+
+@keyframes flowerSway {
+
+    0%,
+    100% {
+        transform: rotate(-2deg);
+    }
+
+    50% {
+        transform: rotate(2deg);
+    }
+}
+
+/* ==================== RETRO HEADER STYLING ==================== */
+.theme-forest h1 {
+    color: #ff9800;
+    text-shadow:
+        2px 2px 0 #f44336,
+        4px 4px 0 #bf360c;
+    font-family: var(--font-header);
+    letter-spacing: 3px;
+}
+
+.theme-forest .stats span {
+    color: #ffd700;
+}
+
+/* ==================== MENU PREVIEW FOR NEON SKIN ==================== */
+.menu-item.theme-neon .preview-part:nth-child(1) {
+    background: #1a1a1a;
+}
+
+.menu-item.theme-neon .preview-part:nth-child(2) {
+    background: #0f0;
+    border-radius: 50%;
+}
+
+.menu-item.theme-neon .preview-part:nth-child(3) {
+    background: #f00;
+    transform: rotate(45deg);
+    border-radius: 0;
+}
+
+.menu-item.theme-neon .preview-part:nth-child(4) {
+    background: #0ff;
+    border-radius: 0;
+}
+
+/* ==================== MENU PREVIEW FOR FOREST SKIN ==================== */
+.menu-item.theme-forest .preview-part:nth-child(1) {
+    background: #071507;
+}
+
+.menu-item.theme-forest .preview-part:nth-child(2) {
+    background: linear-gradient(135deg, #4fc3f7 50%, #1976d2 50%);
+}
+
+.menu-item.theme-forest .preview-part:nth-child(3) {
+    background: linear-gradient(135deg, #7cb342 50%, #558b2f 50%);
+}
+
+.menu-item.theme-forest .preview-part:nth-child(4) {
+    background: linear-gradient(135deg, #2e7d32 33%, #1b5e20 66%, #5d4037 100%);
+}
+
+/* ================================================================
+   INDIANA THEME - 16-bit Adventure Explorer Style
+   ================================================================ */
+
+.theme-indiana {
+    --bg-color: #3e2723;
+    --grid-bg: #2c1810;
+    --grid-line: #5d4037;
+    --player-color: #d4a574;
+    --zombie-color: #4a7c3f;
+    --wall-color: #8d6e63;
+    --exit-color: #ffd700;
+    --text-color: #ffcc80;
+}
+
+.theme-indiana .grid-container {
+    background-color: var(--grid-bg);
+    border: 3px solid #795548;
+    box-shadow: 0 0 30px rgba(139, 69, 19, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.5);
+    image-rendering: pixelated;
+}
+
+.theme-indiana .cell {
+    border: 1px solid var(--grid-line);
+}
+
+/* ==================== INDIANA PLAYER - Explorer with Fedora ==================== */
+.theme-indiana .player {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.theme-indiana .player::after {
+    content: '';
+    width: 75%;
+    height: 85%;
+    background: transparent;
+    background-color: transparent !important;
+    border-radius: 0;
+    transform: none;
+    position: relative;
+    /* Explorer with fedora hat */
+    background-image:
+        /* Hat brim */
+        linear-gradient(to right, transparent 15%, #5d4037 15%, #5d4037 85%, transparent 85%),
+        /* Hat crown */
+        linear-gradient(to right, transparent 25%, #6d4c41 25%, #6d4c41 75%, transparent 75%),
+        /* Face */
+        linear-gradient(to right, transparent 30%, #d4a574 30%, #d4a574 70%, transparent 70%),
+        /* Eyes and face details */
+        linear-gradient(to right, transparent 30%, #d4a574 30%, #d4a574 40%, #333 40%, #333 45%, #d4a574 45%, #d4a574 55%, #333 55%, #333 60%, #d4a574 60%, #d4a574 70%, transparent 70%),
+        /* Jacket - brown leather */
+        linear-gradient(to right, transparent 20%, #8b4513 20%, #8b4513 80%, transparent 80%),
+        /* Pants - khaki */
+        linear-gradient(to right, transparent 25%, #c4a35a 25%, #c4a35a 45%, transparent 45%, transparent 55%, #c4a35a 55%, #c4a35a 75%, transparent 75%);
+    background-size:
+        100% 12%,
+        100% 12%,
+        100% 15%,
+        100% 10%,
+        100% 30%,
+        100% 20%;
+    background-position:
+        center 0%,
+        center 8%,
+        center 20%,
+        center 32%,
+        center 48%,
+        center 80%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    box-shadow: none !important;
+    animation: explorerBob 0.8s ease-in-out infinite;
+}
+
+@keyframes explorerBob {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5%);
+    }
+}
+
+/* ==================== INDIANA ZOMBIE - Snake/Serpent ==================== */
+.theme-indiana .zombie {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.theme-indiana .zombie::after {
+    content: '';
+    width: 80%;
+    height: 80%;
+    background: transparent;
+    background-color: transparent !important;
+    border-radius: 0;
+    transform: none;
+    position: relative;
+    /* Snake/serpent */
+    background-image:
+        /* Head */
+        linear-gradient(to right, transparent 20%, #4a7c3f 20%, #4a7c3f 80%, transparent 80%),
+        /* Eyes - yellow */
+        linear-gradient(to right, transparent 25%, #4a7c3f 25%, #4a7c3f 35%, #ffeb3b 35%, #ffeb3b 42%, #4a7c3f 42%, #4a7c3f 58%, #ffeb3b 58%, #ffeb3b 65%, #4a7c3f 65%, #4a7c3f 75%, transparent 75%),
+        /* Tongue */
+        linear-gradient(to right, transparent 40%, #4a7c3f 40%, #4a7c3f 45%, #f44336 45%, #f44336 55%, #4a7c3f 55%, #4a7c3f 60%, transparent 60%),
+        /* Body coil 1 */
+        linear-gradient(to right, transparent 15%, #388e3c 15%, #388e3c 85%, transparent 85%),
+        /* Body coil 2 */
+        linear-gradient(to right, transparent 20%, #4a7c3f 20%, #4a7c3f 80%, transparent 80%),
+        /* Body coil 3 */
+        linear-gradient(to right, transparent 25%, #2e7d32 25%, #2e7d32 75%, transparent 75%);
+    background-size:
+        100% 20%,
+        100% 12%,
+        100% 10%,
+        100% 18%,
+        100% 18%,
+        100% 18%;
+    background-position:
+        center 0%,
+        center 15%,
+        center 28%,
+        center 42%,
+        center 62%,
+        center 82%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    box-shadow: none !important;
+    animation: snakeSlither 0.6s ease-in-out infinite;
+}
+
+@keyframes snakeSlither {
+
+    0%,
+    100% {
+        transform: translateX(0) scaleX(1);
+    }
+
+    25% {
+        transform: translateX(-3%) scaleX(0.98);
+    }
+
+    75% {
+        transform: translateX(3%) scaleX(1.02);
+    }
+}
+
+/* ==================== INDIANA WALL - Temple Stone Blocks ==================== */
+.theme-indiana .wall {
+    background: linear-gradient(145deg,
+            #a1887f 0%,
+            #8d6e63 25%,
+            #795548 50%,
+            #6d4c41 75%,
+            #5d4037 100%);
+    border: 2px solid #4e342e;
+    box-shadow:
+        inset 2px 2px 4px rgba(255, 255, 255, 0.2),
+        inset -2px -2px 4px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+/* Stone block cracks/details */
+.theme-indiana .wall::before {
+    content: '';
+    position: absolute;
+    top: 30%;
+    left: 20%;
+    width: 60%;
+    height: 40%;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 0;
+}
+
+/* ==================== INDIANA EXIT - Golden Skull ==================== */
+.theme-indiana .exit {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.theme-indiana .exit::after {
+    content: '';
+    width: 85%;
+    height: 90%;
+    background: transparent;
+    position: relative;
+    /* Golden skull design */
+    background-image:
+        /* Skull crown */
+        linear-gradient(to right, transparent 20%, #ffd700 20%, #ffd700 80%, transparent 80%),
+        /* Upper skull */
+        linear-gradient(to right, transparent 15%, #ffb300 15%, #ffb300 85%, transparent 85%),
+        /* Eye sockets - black */
+        linear-gradient(to right, transparent 20%, #ffd700 20%, #ffd700 30%, #1a1a1a 30%, #1a1a1a 40%, #ffd700 40%, #ffd700 60%, #1a1a1a 60%, #1a1a1a 70%, #ffd700 70%, #ffd700 80%, transparent 80%),
+        /* Nose cavity */
+        linear-gradient(to right, transparent 35%, #ffc107 35%, #ffc107 42%, #2d2d2d 42%, #2d2d2d 58%, #ffc107 58%, #ffc107 65%, transparent 65%),
+        /* Teeth row */
+        linear-gradient(to right, transparent 25%, #ffd700 25%, #ffd700 30%, #fff59d 30%, #fff59d 35%, #ffd700 35%, #ffd700 40%, #fff59d 40%, #fff59d 45%, #ffd700 45%, #ffd700 55%, #fff59d 55%, #fff59d 60%, #ffd700 60%, #ffd700 65%, #fff59d 65%, #fff59d 70%, #ffd700 70%, #ffd700 75%, transparent 75%),
+        /* Jaw */
+        linear-gradient(to right, transparent 30%, #e6a200 30%, #e6a200 70%, transparent 70%);
+    background-size:
+        100% 20%,
+        100% 18%,
+        100% 18%,
+        100% 14%,
+        100% 15%,
+        100% 12%;
+    background-position:
+        center 0%,
+        center 16%,
+        center 32%,
+        center 48%,
+        center 62%,
+        center 80%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 15px rgba(255, 152, 0, 0.5));
+    animation: skullGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes skullGlow {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 15px rgba(255, 152, 0, 0.5));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 15px rgba(255, 215, 0, 1)) drop-shadow(0 0 25px rgba(255, 152, 0, 0.8));
+    }
+}
+
+@keyframes idolGlow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 152, 0, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 25px rgba(255, 215, 0, 1), 0 0 50px rgba(255, 152, 0, 0.8);
+    }
+}
+
+/* Indiana theme header */
+.theme-indiana h1 {
+    color: #ffd700;
+    text-shadow: 3px 3px 0 #5d4037, 0 0 20px rgba(255, 215, 0, 0.5);
+    letter-spacing: 3px;
+}
+
+.theme-indiana .stats span {
+    color: #ffcc80;
+}
+
+/* ==================== MENU PREVIEW FOR INDIANA SKIN ==================== */
+.menu-item.theme-indiana .preview-part:nth-child(1) {
+    background: #2c1810;
+}
+
+.menu-item.theme-indiana .preview-part:nth-child(2) {
+    background: linear-gradient(135deg, #d4a574 30%, #8b4513 70%);
+}
+
+.menu-item.theme-indiana .preview-part:nth-child(3) {
+    background: linear-gradient(135deg, #4a7c3f 50%, #2e7d32 50%);
+}
+
+.menu-item.theme-indiana .preview-part:nth-child(4) {
+    background: linear-gradient(135deg, #a1887f 33%, #795548 66%, #5d4037 100%);
+}
+
+/* ================================================================
+   KAIJU THEME - Giant Monster Attacks the City!
+   ================================================================ */
+
+.theme-kaiju {
+    --bg-color: #2d2d2d;
+    --grid-bg: #3a3a3a;
+    --grid-line: #4a4a4a;
+    --player-color: #4ecca3;
+    --zombie-color: #2e7d32;
+    --wall-color: #5d6d7e;
+    --exit-color: #f8b500;
+    --text-color: #eee;
+}
+
+.theme-kaiju .grid-container {
+    background-color: var(--grid-bg);
+    border: 3px solid #5d6d7e;
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6);
+    image-rendering: pixelated;
+    /* Destroyed asphalt texture */
+    background-image:
+        radial-gradient(ellipse 15% 20% at 20% 30%, rgba(50, 50, 50, 0.8) 0%, transparent 70%),
+        radial-gradient(ellipse 20% 15% at 70% 60%, rgba(45, 45, 45, 0.7) 0%, transparent 70%),
+        radial-gradient(ellipse 10% 25% at 40% 80%, rgba(55, 55, 55, 0.6) 0%, transparent 70%),
+        radial-gradient(ellipse 18% 12% at 85% 20%, rgba(40, 40, 40, 0.7) 0%, transparent 70%);
+}
+
+.theme-kaiju .cell {
+    border: 1px solid var(--grid-line);
+    /* Subtle crack lines */
+    background-image:
+        linear-gradient(135deg, transparent 45%, rgba(30, 30, 30, 0.3) 46%, rgba(30, 30, 30, 0.3) 48%, transparent 49%);
+}
+
+/* ==================== KAIJU PLAYER - Japanese Civilian ==================== */
+.theme-kaiju .player {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.theme-kaiju .player::after {
+    content: '';
+    width: 70%;
+    height: 85%;
+    background: transparent;
+    position: relative;
+    /* Japanese civilian running */
+    background-image:
+        /* Hair - black */
+        linear-gradient(to right, transparent 30%, #1a1a1a 30%, #1a1a1a 70%, transparent 70%),
+        /* Face */
+        linear-gradient(to right, transparent 32%, #f5d0c5 32%, #f5d0c5 68%, transparent 68%),
+        /* Eyes */
+        linear-gradient(to right, transparent 35%, #f5d0c5 35%, #f5d0c5 42%, #1a1a1a 42%, #1a1a1a 46%, #f5d0c5 46%, #f5d0c5 54%, #1a1a1a 54%, #1a1a1a 58%, #f5d0c5 58%, #f5d0c5 65%, transparent 65%),
+        /* Shirt - white/light blue */
+        linear-gradient(to right, transparent 25%, #e3f2fd 25%, #e3f2fd 75%, transparent 75%),
+        /* Pants - dark */
+        linear-gradient(to right, transparent 28%, #37474f 28%, #37474f 45%, transparent 45%, transparent 55%, #37474f 55%, #37474f 72%, transparent 72%);
+    background-size:
+        100% 18%,
+        100% 18%,
+        100% 10%,
+        100% 30%,
+        100% 25%;
+    background-position:
+        center 0%,
+        center 15%,
+        center 28%,
+        center 45%,
+        center 78%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    animation: civilianRun 0.4s ease-in-out infinite;
+}
+
+@keyframes civilianRun {
+
+    0%,
+    100% {
+        transform: translateY(0) translateX(0);
+    }
+
+    25% {
+        transform: translateY(-5%) translateX(2%);
+    }
+
+    75% {
+        transform: translateY(-5%) translateX(-2%);
+    }
+}
+
+/* ==================== KAIJU ZOMBIE - GODZILLA Monster ==================== */
+.theme-kaiju .zombie {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.theme-kaiju .zombie::after {
+    content: '';
+    width: 90%;
+    height: 95%;
+    background: transparent;
+    position: relative;
+    /* Godzilla - giant monster */
+    background-image:
+        /* Dorsal spines - iconic spikes */
+        linear-gradient(to right, transparent 15%, #1b5e20 15%, #1b5e20 25%, transparent 25%, transparent 35%, #2e7d32 35%, #2e7d32 45%, transparent 45%, transparent 55%, #2e7d32 55%, #2e7d32 65%, transparent 65%, transparent 75%, #1b5e20 75%, #1b5e20 85%, transparent 85%),
+        /* Head - massive */
+        linear-gradient(to right, transparent 20%, #2e7d32 20%, #2e7d32 80%, transparent 80%),
+        /* Angry eyes - glowing orange/red */
+        linear-gradient(to right, transparent 25%, #2e7d32 25%, #2e7d32 35%, #ff5722 35%, #ff5722 42%, #2e7d32 42%, #2e7d32 58%, #ff5722 58%, #ff5722 65%, #2e7d32 65%, #2e7d32 75%, transparent 75%),
+        /* Open mouth with atomic glow */
+        linear-gradient(to right, transparent 30%, #2e7d32 30%, #2e7d32 38%, #64b5f6 38%, #64b5f6 62%, #2e7d32 62%, #2e7d32 70%, transparent 70%),
+        /* Massive body */
+        linear-gradient(to right, transparent 10%, #388e3c 10%, #388e3c 90%, transparent 90%),
+        /* Arms - small T-rex style */
+        linear-gradient(to right, transparent 15%, #2e7d32 15%, #2e7d32 30%, transparent 30%, transparent 70%, #2e7d32 70%, #2e7d32 85%, transparent 85%),
+        /* Thick legs */
+        linear-gradient(to right, transparent 18%, #1b5e20 18%, #1b5e20 38%, transparent 38%, transparent 62%, #1b5e20 62%, #1b5e20 82%, transparent 82%);
+    background-size:
+        100% 12%,
+        100% 15%,
+        100% 10%,
+        100% 8%,
+        100% 28%,
+        100% 12%,
+        100% 18%;
+    background-position:
+        center 0%,
+        center 10%,
+        center 22%,
+        center 32%,
+        center 48%,
+        center 62%,
+        center 82%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    animation: godzillaRoar 0.8s ease-in-out infinite;
+}
+
+@keyframes godzillaRoar {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.08);
+    }
+}
+
+/* ==================== KAIJU WALL - Tokyo Skyscrapers ==================== */
+.theme-kaiju .wall {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.theme-kaiju .wall::after {
+    content: '';
+    width: 95%;
+    height: 100%;
+    background: transparent;
+    position: relative;
+    /* Tokyo skyscraper building */
+    background-image:
+        /* Rooftop antenna */
+        linear-gradient(to right, transparent 47%, #4a5568 47%, #4a5568 53%, transparent 53%),
+        /* Building top */
+        linear-gradient(to right, transparent 15%, #5d6d7e 15%, #5d6d7e 85%, transparent 85%),
+        /* Windows row 1 */
+        linear-gradient(to right, transparent 18%, #4a5568 18%, #4a5568 22%, #ffeeba 22%, #ffeeba 28%, #4a5568 28%, #4a5568 35%, #ffeeba 35%, #ffeeba 41%, #4a5568 41%, #4a5568 48%, #ffeeba 48%, #ffeeba 54%, #4a5568 54%, #4a5568 61%, #ffeeba 61%, #ffeeba 67%, #4a5568 67%, #4a5568 74%, #ffeeba 74%, #ffeeba 80%, #4a5568 80%, #4a5568 82%, transparent 82%),
+        /* Building middle */
+        linear-gradient(to right, transparent 15%, #6b7c8d 15%, #6b7c8d 85%, transparent 85%),
+        /* Windows row 2 */
+        linear-gradient(to right, transparent 18%, #5d6d7e 18%, #5d6d7e 22%, #fff9c4 22%, #fff9c4 28%, #5d6d7e 28%, #5d6d7e 35%, #fff9c4 35%, #fff9c4 41%, #5d6d7e 41%, #5d6d7e 48%, #fff9c4 48%, #fff9c4 54%, #5d6d7e 54%, #5d6d7e 61%, #fff9c4 61%, #fff9c4 67%, #5d6d7e 67%, #5d6d7e 74%, #fff9c4 74%, #fff9c4 80%, #5d6d7e 80%, #5d6d7e 82%, transparent 82%),
+        /* Windows row 3 */
+        linear-gradient(to right, transparent 18%, #5d6d7e 18%, #5d6d7e 22%, #ffeeba 22%, #ffeeba 28%, #5d6d7e 28%, #5d6d7e 35%, #2d3748 35%, #2d3748 41%, #5d6d7e 41%, #5d6d7e 48%, #ffeeba 48%, #ffeeba 54%, #5d6d7e 54%, #5d6d7e 61%, #ffeeba 61%, #ffeeba 67%, #5d6d7e 67%, #5d6d7e 74%, #2d3748 74%, #2d3748 80%, #5d6d7e 80%, #5d6d7e 82%, transparent 82%),
+        /* Building lower */
+        linear-gradient(to right, transparent 15%, #4a5568 15%, #4a5568 85%, transparent 85%),
+        /* Windows row 4 */
+        linear-gradient(to right, transparent 18%, #3d4654 18%, #3d4654 22%, #fff9c4 22%, #fff9c4 28%, #3d4654 28%, #3d4654 35%, #fff9c4 35%, #fff9c4 41%, #3d4654 41%, #3d4654 48%, #2d3748 48%, #2d3748 54%, #3d4654 54%, #3d4654 61%, #fff9c4 61%, #fff9c4 67%, #3d4654 67%, #3d4654 74%, #fff9c4 74%, #fff9c4 80%, #3d4654 80%, #3d4654 82%, transparent 82%);
+    background-size:
+        100% 8%,
+        100% 10%,
+        100% 12%,
+        100% 18%,
+        100% 12%,
+        100% 12%,
+        100% 18%,
+        100% 12%;
+    background-position:
+        center 0%,
+        center 6%,
+        center 16%,
+        center 28%,
+        center 42%,
+        center 54%,
+        center 66%,
+        center 84%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+}
+
+/* ==================== KAIJU EXIT - Girl to Rescue ==================== */
+.theme-kaiju .exit {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.theme-kaiju .exit::after {
+    content: '';
+    width: 70%;
+    height: 85%;
+    background: transparent;
+    position: relative;
+    /* Girl character (damsel to rescue) */
+    background-image:
+        /* Hair */
+        linear-gradient(to right, transparent 25%, #b45309 25%, #b45309 75%, transparent 75%),
+        /* Hair sides */
+        linear-gradient(to right, transparent 20%, #b45309 20%, #b45309 80%, transparent 80%),
+        /* Face */
+        linear-gradient(to right, transparent 30%, #fcd5ce 30%, #fcd5ce 70%, transparent 70%),
+        /* Eyes and features */
+        linear-gradient(to right, transparent 35%, #fcd5ce 35%, #fcd5ce 42%, #4a4a4a 42%, #4a4a4a 46%, #fcd5ce 46%, #fcd5ce 54%, #4a4a4a 54%, #4a4a4a 58%, #fcd5ce 58%, #fcd5ce 65%, transparent 65%),
+        /* Dress top - red */
+        linear-gradient(to right, transparent 25%, #e94560 25%, #e94560 75%, transparent 75%),
+        /* Dress bottom - flowing */
+        linear-gradient(to right, transparent 20%, #e94560 20%, #e94560 80%, transparent 80%);
+    background-size:
+        100% 15%,
+        100% 12%,
+        100% 18%,
+        100% 10%,
+        100% 22%,
+        100% 25%;
+    background-position:
+        center 0%,
+        center 12%,
+        center 22%,
+        center 36%,
+        center 50%,
+        center 75%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 8px rgba(248, 181, 0, 0.6));
+    animation: girlWave 1.5s ease-in-out infinite;
+}
+
+@keyframes girlWave {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+/* Kaiju theme header */
+.theme-kaiju h1 {
+    color: #4ecca3;
+    text-shadow: 3px 3px 0 #e94560, 0 0 20px rgba(78, 204, 163, 0.5);
+    letter-spacing: 3px;
+}
+
+.theme-kaiju .stats span {
+    color: #f8b500;
+}
+
+/* ==================== MENU PREVIEW FOR KAIJU SKIN ==================== */
+.menu-item.theme-kaiju .preview-part:nth-child(1) {
+    background: #16213e;
+}
+
+.menu-item.theme-kaiju .preview-part:nth-child(2) {
+    background: linear-gradient(135deg, #388e3c 50%, #2e7d32 50%);
+}
+
+.menu-item.theme-kaiju .preview-part:nth-child(3) {
+    background: linear-gradient(135deg, #6d5d45 50%, #4a4a4a 50%);
+}
+
+.menu-item.theme-kaiju .preview-part:nth-child(4) {
+    background: linear-gradient(135deg, #5d6d7e 33%, #f6e05e 66%, #4a5568 100%);
+}
+
+/* ================================================================
+   PIRATE THEME - Boats, Treasure & High Seas Adventure!
+   ================================================================ */
+
+.theme-pirate {
+    --bg-color: #87ceeb;
+    --grid-bg: #4db8ff;
+    --grid-line: #3aa0e6;
+    --player-color: #cd8032;
+    --zombie-color: #2d2d2d;
+    --wall-color: #f4d03f;
+    --exit-color: #ffd700;
+    --text-color: #2c3e50;
+}
+
+.theme-pirate .grid-container {
+    background-color: var(--grid-bg);
+    border: 3px solid #cd8032;
+    box-shadow: 0 0 30px rgba(30, 144, 255, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.2);
+    image-rendering: pixelated;
+}
+
+.theme-pirate .cell {
+    border: 1px solid var(--grid-line);
+}
+
+/* ==================== PIRATE PLAYER - Friendly Boat ==================== */
+.theme-pirate .player {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.theme-pirate .player::after {
+    content: '';
+    width: 85%;
+    height: 85%;
+    background: transparent;
+    position: relative;
+    /* Friendly sailing boat */
+    background-image:
+        /* Flag */
+        linear-gradient(to right, transparent 45%, #e74c3c 45%, #e74c3c 55%, transparent 55%),
+        /* Mast */
+        linear-gradient(to right, transparent 48%, #5d4037 48%, #5d4037 52%, transparent 52%),
+        /* Sail - white */
+        linear-gradient(to right, transparent 30%, #f5f5f5 30%, #f5f5f5 70%, transparent 70%),
+        /* Sail accent */
+        linear-gradient(to right, transparent 32%, #f5f5f5 32%, #f5f5f5 68%, transparent 68%),
+        /* Hull - brown wood */
+        linear-gradient(to right, transparent 15%, #8b4513 15%, #8b4513 85%, transparent 85%),
+        /* Hull bottom */
+        linear-gradient(to right, transparent 25%, #6d3810 25%, #6d3810 75%, transparent 75%);
+    background-size:
+        100% 10%,
+        100% 45%,
+        100% 25%,
+        100% 18%,
+        100% 20%,
+        100% 12%;
+    background-position:
+        center 0%,
+        center 5%,
+        center 20%,
+        center 38%,
+        center 62%,
+        center 85%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 5px rgba(205, 128, 50, 0.5));
+    animation: boatRock 2s ease-in-out infinite;
+}
+
+@keyframes boatRock {
+
+    0%,
+    100% {
+        transform: rotate(-2deg);
+    }
+
+    50% {
+        transform: rotate(2deg);
+    }
+}
+
+/* ==================== PIRATE ZOMBIE - Enemy Skull Boat ==================== */
+.theme-pirate .zombie {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.theme-pirate .zombie::after {
+    content: '';
+    width: 85%;
+    height: 85%;
+    background: transparent;
+    position: relative;
+    /* Pirate ship with skull flag */
+    background-image:
+        /* Skull flag - white on black */
+        linear-gradient(to right, transparent 40%, #1a1a1a 40%, #1a1a1a 60%, transparent 60%),
+        /* Skull on flag */
+        linear-gradient(to right, transparent 43%, #f5f5f5 43%, #f5f5f5 57%, transparent 57%),
+        /* Mast */
+        linear-gradient(to right, transparent 48%, #2d2d2d 48%, #2d2d2d 52%, transparent 52%),
+        /* Tattered sail - black */
+        linear-gradient(to right, transparent 25%, #2d2d2d 25%, #2d2d2d 75%, transparent 75%),
+        /* Hull - dark wood */
+        linear-gradient(to right, transparent 15%, #1a1a1a 15%, #1a1a1a 85%, transparent 85%),
+        /* Hull detail */
+        linear-gradient(to right, transparent 18%, #2d2d2d 18%, #2d2d2d 82%, transparent 82%);
+    background-size:
+        100% 12%,
+        100% 6%,
+        100% 40%,
+        100% 22%,
+        100% 22%,
+        100% 10%;
+    background-position:
+        center 0%,
+        center 4%,
+        center 8%,
+        center 28%,
+        center 60%,
+        center 85%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 4px rgba(45, 45, 45, 0.8));
+    animation: pirateBoatRock 1.8s ease-in-out infinite;
+}
+
+@keyframes pirateBoatRock {
+
+    0%,
+    100% {
+        transform: rotate(2deg);
+    }
+
+    50% {
+        transform: rotate(-2deg);
+    }
+}
+
+/* ==================== PIRATE WALL - Tropical Islands ==================== */
+.theme-pirate .wall {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.theme-pirate .wall::after {
+    content: '';
+    width: 90%;
+    height: 90%;
+    background: transparent;
+    position: relative;
+    /* Tropical island with palm tree */
+    background-image:
+        /* Palm leaves - top */
+        linear-gradient(to right, transparent 20%, #228b22 20%, #228b22 40%, transparent 40%, transparent 60%, #228b22 60%, #228b22 80%, transparent 80%),
+        /* Palm leaves - middle */
+        linear-gradient(to right, transparent 10%, #2e8b2e 10%, #2e8b2e 30%, transparent 30%, transparent 40%, #32cd32 40%, #32cd32 60%, transparent 60%, transparent 70%, #2e8b2e 70%, #2e8b2e 90%, transparent 90%),
+        /* Palm trunk */
+        linear-gradient(to right, transparent 42%, #8b4513 42%, #8b4513 58%, transparent 58%),
+        /* Sand island base */
+        linear-gradient(to right, transparent 15%, #f4d03f 15%, #f4d03f 85%, transparent 85%),
+        /* Sand bottom */
+        linear-gradient(to right, transparent 25%, #daa520 25%, #daa520 75%, transparent 75%);
+    background-size:
+        100% 18%,
+        100% 15%,
+        100% 35%,
+        100% 25%,
+        100% 15%;
+    background-position:
+        center 0%,
+        center 12%,
+        center 25%,
+        center 65%,
+        center 88%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+}
+
+/* ==================== PIRATE EXIT - Treasure Chest ==================== */
+.theme-pirate .exit {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.theme-pirate .exit::after {
+    content: '';
+    width: 90%;
+    height: 80%;
+    background: transparent;
+    position: relative;
+    /* Treasure chest with gold */
+    background-image:
+        /* Gold coins pile on top */
+        linear-gradient(to right, transparent 20%, #ffd700 20%, #ffd700 35%, transparent 35%, transparent 45%, #ffd700 45%, #ffd700 55%, transparent 55%, transparent 65%, #ffd700 65%, #ffd700 80%, transparent 80%),
+        /* More gold */
+        linear-gradient(to right, transparent 15%, #ffb300 15%, #ffb300 85%, transparent 85%),
+        /* Chest lid open */
+        linear-gradient(to right, transparent 10%, #8b4513 10%, #8b4513 90%, transparent 90%),
+        /* Lid edge */
+        linear-gradient(to right, transparent 8%, #6d3810 8%, #6d3810 92%, transparent 92%),
+        /* Chest body */
+        linear-gradient(to right, transparent 10%, #a0522d 10%, #a0522d 90%, transparent 90%),
+        /* Chest lock/detail */
+        linear-gradient(to right, transparent 42%, #ffd700 42%, #ffd700 58%, transparent 58%);
+    background-size:
+        100% 12%,
+        100% 15%,
+        100% 15%,
+        100% 8%,
+        100% 40%,
+        100% 12%;
+    background-position:
+        center 0%,
+        center 10%,
+        center 25%,
+        center 38%,
+        center 55%,
+        center 75%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.4));
+    animation: treasureGlow 1.2s ease-in-out infinite;
+}
+
+@keyframes treasureGlow {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.4));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 15px rgba(255, 215, 0, 1)) drop-shadow(0 0 30px rgba(255, 215, 0, 0.6));
+    }
+}
+
+/* Pirate theme header */
+.theme-pirate h1 {
+    color: #ffd700;
+    text-shadow: 3px 3px 0 #1a3a5c, 0 0 20px rgba(255, 215, 0, 0.5);
+    letter-spacing: 3px;
+}
+
+.theme-pirate .stats span {
+    color: #f5deb3;
+}
+
+/* ==================== MENU PREVIEW FOR PIRATE SKIN ==================== */
+.menu-item.theme-pirate .preview-part:nth-child(1) {
+    background: #0d2b4a;
+}
+
+.menu-item.theme-pirate .preview-part:nth-child(2) {
+    background: linear-gradient(135deg, #8b4513 50%, #f5f5f5 50%);
+}
+
+.menu-item.theme-pirate .preview-part:nth-child(3) {
+    background: linear-gradient(135deg, #1a1a1a 50%, #2d2d2d 50%);
+}
+
+.menu-item.theme-pirate .preview-part:nth-child(4) {
+    background: linear-gradient(135deg, #ffd700 50%, #a0522d 50%);
+}
+
+/* ================================================================
+   JUNGLE THEME - Rabbit Escapes the Fox!
+   ================================================================ */
+
+.theme-jungle {
+    --bg-color: #2d5016;
+    --grid-bg: #3d6b1e;
+    --grid-line: #4a7c23;
+    --player-color: #e0e0e0;
+    --zombie-color: #d35400;
+    --wall-color: #228b22;
+    --exit-color: #ff6b00;
+    --text-color: #f5f5dc;
+}
+
+.theme-jungle .grid-container {
+    background-color: var(--grid-bg);
+    border: 3px solid #2d5016;
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.4);
+    image-rendering: pixelated;
+    /* Grass texture */
+    background-image:
+        radial-gradient(ellipse 8% 15% at 15% 25%, rgba(60, 120, 30, 0.6) 0%, transparent 70%),
+        radial-gradient(ellipse 10% 12% at 75% 40%, rgba(50, 100, 25, 0.5) 0%, transparent 70%),
+        radial-gradient(ellipse 6% 18% at 45% 70%, rgba(70, 130, 35, 0.5) 0%, transparent 70%),
+        radial-gradient(ellipse 12% 10% at 85% 80%, rgba(55, 110, 28, 0.6) 0%, transparent 70%);
+}
+
+.theme-jungle .cell {
+    border: 1px solid var(--grid-line);
+}
+
+/* ==================== JUNGLE PLAYER - Cute Rabbit ==================== */
+.theme-jungle .player {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.theme-jungle .player::after {
+    content: '';
+    width: 75%;
+    height: 90%;
+    background: transparent;
+    position: relative;
+    /* Cute rabbit */
+    background-image:
+        /* Left ear */
+        linear-gradient(to right, transparent 22%, #e8e8e8 22%, #e8e8e8 32%, transparent 32%),
+        /* Right ear */
+        linear-gradient(to right, transparent 68%, #e8e8e8 68%, #e8e8e8 78%, transparent 78%),
+        /* Ear inner pink */
+        linear-gradient(to right, transparent 24%, #ffb6c1 24%, #ffb6c1 30%, transparent 30%, transparent 70%, #ffb6c1 70%, #ffb6c1 76%, transparent 76%),
+        /* Head */
+        linear-gradient(to right, transparent 25%, #f5f5f5 25%, #f5f5f5 75%, transparent 75%),
+        /* Eyes */
+        linear-gradient(to right, transparent 32%, #f5f5f5 32%, #f5f5f5 38%, #1a1a1a 38%, #1a1a1a 42%, #f5f5f5 42%, #f5f5f5 58%, #1a1a1a 58%, #1a1a1a 62%, #f5f5f5 62%, #f5f5f5 68%, transparent 68%),
+        /* Nose - pink */
+        linear-gradient(to right, transparent 45%, #ffb6c1 45%, #ffb6c1 55%, transparent 55%),
+        /* Body */
+        linear-gradient(to right, transparent 28%, #e8e8e8 28%, #e8e8e8 72%, transparent 72%),
+        /* Feet */
+        linear-gradient(to right, transparent 30%, #f5f5f5 30%, #f5f5f5 42%, transparent 42%, transparent 58%, #f5f5f5 58%, #f5f5f5 70%, transparent 70%);
+    background-size:
+        100% 22%,
+        100% 22%,
+        100% 15%,
+        100% 20%,
+        100% 10%,
+        100% 6%,
+        100% 22%,
+        100% 12%;
+    background-position:
+        center 0%,
+        center 0%,
+        center 8%,
+        center 25%,
+        center 38%,
+        center 48%,
+        center 60%,
+        center 88%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    animation: rabbitHop 0.6s ease-in-out infinite;
+}
+
+@keyframes rabbitHop {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8%);
+    }
+}
+
+/* ==================== JUNGLE ZOMBIE - Sneaky Fox ==================== */
+.theme-jungle .zombie {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.theme-jungle .zombie::after {
+    content: '';
+    width: 85%;
+    height: 90%;
+    background: transparent;
+    position: relative;
+    /* Fox */
+    background-image:
+        /* Left ear */
+        linear-gradient(to right, transparent 18%, #d35400 18%, #d35400 30%, transparent 30%),
+        /* Right ear */
+        linear-gradient(to right, transparent 70%, #d35400 70%, #d35400 82%, transparent 82%),
+        /* Head - orange */
+        linear-gradient(to right, transparent 20%, #e67e22 20%, #e67e22 80%, transparent 80%),
+        /* White face patch */
+        linear-gradient(to right, transparent 35%, #f5f5f5 35%, #f5f5f5 65%, transparent 65%),
+        /* Eyes - sly */
+        linear-gradient(to right, transparent 28%, #e67e22 28%, #e67e22 35%, #2d2d2d 35%, #2d2d2d 40%, #e67e22 40%, #e67e22 60%, #2d2d2d 60%, #2d2d2d 65%, #e67e22 65%, #e67e22 72%, transparent 72%),
+        /* Nose - black */
+        linear-gradient(to right, transparent 45%, #1a1a1a 45%, #1a1a1a 55%, transparent 55%),
+        /* Body */
+        linear-gradient(to right, transparent 22%, #d35400 22%, #d35400 78%, transparent 78%),
+        /* Legs */
+        linear-gradient(to right, transparent 25%, #1a1a1a 25%, #1a1a1a 38%, transparent 38%, transparent 62%, #1a1a1a 62%, #1a1a1a 75%, transparent 75%);
+    background-size:
+        100% 18%,
+        100% 18%,
+        100% 22%,
+        100% 12%,
+        100% 10%,
+        100% 6%,
+        100% 25%,
+        100% 12%;
+    background-position:
+        center 0%,
+        center 0%,
+        center 15%,
+        center 28%,
+        center 36%,
+        center 46%,
+        center 60%,
+        center 88%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    animation: foxProwl 0.8s ease-in-out infinite;
+}
+
+@keyframes foxProwl {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5%);
+    }
+
+    75% {
+        transform: translateX(5%);
+    }
+}
+
+/* ==================== JUNGLE WALL - Dense Bushes ==================== */
+.theme-jungle .wall {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.theme-jungle .wall::after {
+    content: '';
+    width: 95%;
+    height: 90%;
+    background: transparent;
+    position: relative;
+    /* Dense bush/shrub */
+    background-image:
+        /* Top leaves */
+        linear-gradient(to right, transparent 25%, #228b22 25%, #228b22 75%, transparent 75%),
+        /* Middle - wider */
+        linear-gradient(to right, transparent 10%, #2e8b2e 10%, #2e8b2e 90%, transparent 90%),
+        /* Bottom - widest */
+        linear-gradient(to right, transparent 5%, #1e7b1e 5%, #1e7b1e 95%, transparent 95%),
+        /* Ground */
+        linear-gradient(to right, transparent 15%, #3d2817 15%, #3d2817 85%, transparent 85%);
+    background-size:
+        100% 30%,
+        100% 35%,
+        100% 25%,
+        100% 15%;
+    background-position:
+        center 0%,
+        center 28%,
+        center 58%,
+        center 90%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+}
+
+/* ==================== JUNGLE EXIT - Carrot (Rabbit's Goal!) ==================== */
+.theme-jungle .exit {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.theme-jungle .exit::after {
+    content: '';
+    width: 70%;
+    height: 90%;
+    background: transparent;
+    position: relative;
+    /* Giant carrot */
+    background-image:
+        /* Carrot greens */
+        linear-gradient(to right, transparent 30%, #228b22 30%, #228b22 45%, transparent 45%, transparent 55%, #228b22 55%, #228b22 70%, transparent 70%),
+        /* More greens */
+        linear-gradient(to right, transparent 38%, #2e8b2e 38%, #2e8b2e 62%, transparent 62%),
+        /* Carrot top */
+        linear-gradient(to right, transparent 30%, #ff6b00 30%, #ff6b00 70%, transparent 70%),
+        /* Carrot body */
+        linear-gradient(to right, transparent 32%, #ff8c00 32%, #ff8c00 68%, transparent 68%),
+        /* Carrot middle */
+        linear-gradient(to right, transparent 35%, #ff7f00 35%, #ff7f00 65%, transparent 65%),
+        /* Carrot tip */
+        linear-gradient(to right, transparent 42%, #ff6600 42%, #ff6600 58%, transparent 58%);
+    background-size:
+        100% 15%,
+        100% 12%,
+        100% 18%,
+        100% 25%,
+        100% 20%,
+        100% 15%;
+    background-position:
+        center 0%,
+        center 10%,
+        center 22%,
+        center 42%,
+        center 62%,
+        center 82%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    animation: carrotBounce 1s ease-in-out infinite;
+}
+
+@keyframes carrotBounce {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(-2deg);
+    }
+
+    50% {
+        transform: translateY(-5%) rotate(2deg);
+    }
+}
+
+/* Jungle theme header */
+.theme-jungle h1 {
+    color: #ff6b00;
+    text-shadow: 3px 3px 0 #2d5016, 0 0 15px rgba(255, 107, 0, 0.4);
+    letter-spacing: 3px;
+}
+
+.theme-jungle .stats span {
+    color: #f5f5dc;
+}
+
+/* ==================== MENU PREVIEW FOR JUNGLE SKIN ==================== */
+.menu-item.theme-jungle .preview-part:nth-child(1) {
+    background: #3d6b1e;
+}
+
+.menu-item.theme-jungle .preview-part:nth-child(2) {
+    background: linear-gradient(135deg, #f5f5f5 50%, #ffb6c1 50%);
+}
+
+.menu-item.theme-jungle .preview-part:nth-child(3) {
+    background: linear-gradient(135deg, #d35400 50%, #f5f5f5 50%);
+}
+
+
+.menu-item.theme-jungle .preview-part:nth-child(4) {
+    background: linear-gradient(135deg, #ff6b00 50%, #228b22 50%);
+}
+
+/* ================================================================
+   SPACE THEME - Astronaut vs Aliens
+   ================================================================ */
+.theme-space {
+    --bg-color: #000000;
+    --grid-bg: #0b0b1a;
+    --grid-line: #1a1a33;
+    --player-color: #ffffff;
+    --zombie-color: #00ff00;
+    --wall-color: #4b0082;
+    --exit-color: #00ffff;
+    --text-color: #e0e0e0;
+}
+
+.theme-space .grid-container {
+    background-color: var(--grid-bg);
+    border: 3px solid #4b0082;
+    box-shadow: 0 0 20px rgba(75, 0, 130, 0.5);
+    image-rendering: pixelated;
+    /* Starfield background */
+    background-image:
+        radial-gradient(white, rgba(255, 255, 255, .2) 2px, transparent 3px),
+        radial-gradient(white, rgba(255, 255, 255, .15) 1px, transparent 2px),
+        radial-gradient(white, rgba(255, 255, 255, .1) 2px, transparent 3px);
+    background-size: 550px 550px, 350px 350px, 250px 250px;
+    background-position: 0 0, 40px 60px, 130px 270px;
+}
+
+.theme-space .cell {
+    border: 1px solid var(--grid-line);
+}
+
+/* SPACE PLAYER - Astronaut */
+.theme-space .player {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.theme-space .player::after {
+    content: '';
+    width: 80%;
+    height: 90%;
+    background: transparent;
+    position: relative;
+    /* Astronaut */
+    background-image:
+        linear-gradient(to right, transparent 25%, #fff 25%, #fff 75%, transparent 75%),
+        /* Helmet */
+        linear-gradient(to right, transparent 30%, #333 30%, #333 70%, transparent 70%),
+        /* Visor */
+        linear-gradient(to right, transparent 20%, #ddd 20%, #ddd 80%, transparent 80%),
+        /* Body */
+        linear-gradient(to right, transparent 20%, #eee 20%, #eee 35%, transparent 35%, transparent 65%, #eee 65%, #eee 80%, transparent 80%);
+    /* Legs */
+    background-size: 100% 25%, 100% 15%, 100% 30%, 100% 30%;
+    background-position: center 0, center 10%, center 40%, center 75%;
+    background-repeat: no-repeat;
+    animation: float 2s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* SPACE ZOMBIE - Alien */
+.theme-space .zombie {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.theme-space .zombie::after {
+    content: '';
+    width: 80%;
+    height: 80%;
+    background: transparent;
+    position: relative;
+    /* Alien */
+    background-image:
+        linear-gradient(to right, transparent 10%, #0f0 10%, #0f0 90%, transparent 90%),
+        /* Head */
+        linear-gradient(to right, transparent 20%, #000 20%, #000 35%, transparent 35%, transparent 65%, #000 65%, #000 80%, transparent 80%),
+        /* Eyes */
+        linear-gradient(to right, transparent 30%, #0d0 30%, #0d0 70%, transparent 70%);
+    /* Body */
+    background-size: 100% 40%, 100% 15%, 100% 40%;
+    background-position: center 0, center 15%, center 50%;
+    background-repeat: no-repeat;
+    filter: drop-shadow(0 0 5px #0f0);
+}
+
+/* SPACE WALL - Asteroid */
+.theme-space .wall {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.theme-space .wall::after {
+    content: '';
+    width: 90%;
+    height: 90%;
+    background-color: #555;
+    border-radius: 40% 60% 50% 40% / 50% 40% 60% 50%;
+    box-shadow: inset -5px -5px 10px rgba(0, 0, 0, 0.5);
+    position: relative;
+    top: 5%;
+    left: 5%;
+}
+
+/* SPACE EXIT - Rocket */
+.theme-space .exit {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.theme-space .exit::after {
+    content: '';
+    width: 70%;
+    height: 90%;
+    background: transparent;
+    position: relative;
+    /* Rocket */
+    background-image:
+        linear-gradient(to right, transparent 40%, #f00 40%, #f00 60%, transparent 60%),
+        /* Tip */
+        linear-gradient(to right, transparent 30%, #eee 30%, #eee 70%, transparent 70%),
+        /* Body */
+        linear-gradient(to right, transparent 20%, #f00 20%, #f00 35%, transparent 35%, transparent 65%, #f00 65%, #f00 80%, transparent 80%);
+    /* Fins */
+    background-size: 100% 20%, 100% 50%, 100% 30%;
+    background-position: center 0, center 20%, center 70%;
+    background-repeat: no-repeat;
+}
+
+/* Space Header */
+.theme-space h1 {
+    color: #0ff;
+    text-shadow: 0 0 10px #0ff;
+}
+
+.theme-space .stats span {
+    color: #fff;
+}
+
+.menu-item.theme-space .preview-part:nth-child(1) {
+    background: #000;
+}
+
+.menu-item.theme-space .preview-part:nth-child(2) {
+    background: linear-gradient(135deg, #fff 50%, #ddd 50%);
+}
+
+.menu-item.theme-space .preview-part:nth-child(3) {
+    background: linear-gradient(135deg, #0f0 50%, #0d0 50%);
+}
+
+.menu-item.theme-space .preview-part:nth-child(4) {
+    background: linear-gradient(135deg, #555 50%, #444 50%);
+}
+
+/* ================================================================
+   DUNGEON THEME - Knight vs Skeletons
+   ================================================================ */
+.theme-dungeon {
+    --bg-color: #1a1a1a;
+    --grid-bg: #2b2b2b;
+    --grid-line: #404040;
+    --player-color: #c0c0c0;
+    --zombie-color: #e0e0e0;
+    --wall-color: #8b4513;
+    --exit-color: #ffd700;
+    --text-color: #d3d3d3;
+}
+
+.theme-dungeon .grid-container {
+    background-color: var(--grid-bg);
+    border: 4px solid #555;
+    image-rendering: pixelated;
+    background-image: repeating-linear-gradient(45deg, #252525 25%, transparent 25%, transparent 75%, #252525 75%, #252525), repeating-linear-gradient(45deg, #252525 25%, #2b2b2b 25%, #2b2b2b 75%, #252525 75%, #252525);
+    background-position: 0 0, 10px 10px;
+    background-size: 20px 20px;
+}
+
+.theme-dungeon .cell {
+    border: 1px solid var(--grid-line);
+}
+
+/* DUNGEON PLAYER - Knight */
+.theme-dungeon .player {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.theme-dungeon .player::after {
+    content: '';
+    width: 80%;
+    height: 90%;
+    background: transparent;
+    position: relative;
+    /* Knight */
+    background-image:
+        linear-gradient(to right, transparent 30%, #aaa 30%, #aaa 70%, transparent 70%),
+        /* Helmet */
+        linear-gradient(to right, transparent 40%, #000 40%, #000 60%, transparent 60%),
+        /* Visor slit */
+        linear-gradient(to right, transparent 20%, #ccc 20%, #ccc 80%, transparent 80%),
+        /* Armor */
+        linear-gradient(to right, transparent 35%, #999 35%, #999 65%, transparent 65%);
+    /* Legs */
+    background-size: 100% 25%, 100% 5%, 100% 40%, 100% 25%;
+    background-position: center 0, center 12%, center 35%, center 75%;
+    background-repeat: no-repeat;
+}
+
+/* DUNGEON ZOMBIE - Skeleton */
+.theme-dungeon .zombie {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.theme-dungeon .zombie::after {
+    content: '';
+    width: 70%;
+    height: 90%;
+    background: transparent;
+    position: relative;
+    /* Skeleton */
+    background-image:
+        linear-gradient(to right, transparent 25%, #fff 25%, #fff 75%, transparent 75%),
+        /* Skull */
+        linear-gradient(to right, transparent 30%, #000 30%, #000 45%, transparent 45%, transparent 55%, #000 55%, #000 70%, transparent 70%),
+        /* Eyes */
+        linear-gradient(to right, transparent 40%, #fff 40%, #fff 60%, transparent 60%),
+        /* Spine */
+        linear-gradient(to right, transparent 25%, #fff 25%, #fff 75%, transparent 75%);
+    /* Ribs */
+    background-size: 100% 20%, 100% 8%, 100% 30%, 100% 20%;
+    background-position: center 0, center 8%, center 30%, center 40%;
+    background-repeat: no-repeat;
+    animation: rattle 0.5s linear infinite;
+}
+
+@keyframes rattle {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-1px);
+    }
+
+    75% {
+        transform: translateX(1px);
+    }
+}
+
+/* DUNGEON WALL - Brick Wall with Torch */
+.theme-dungeon .wall {
+    background: #5a4a42 !important;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5) !important;
+    border: 1px solid #3e332e !important;
+}
+
+.theme-dungeon .wall::after {
+    content: '';
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(circle, #ff0 0%, #f00 60%, transparent 80%);
+    position: relative;
+    top: 20%;
+    left: 20%;
+    opacity: 0.6;
+    animation: flicker 0.2s infinite;
+}
+
+@keyframes flicker {
+
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1);
+    }
+}
+
+/* DUNGEON EXIT - Treasure Chest */
+.theme-dungeon .exit {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.theme-dungeon .exit::after {
+    content: '👑';
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    filter: drop-shadow(0 0 10px gold);
+}
+
+/* Dungeon Header */
+.theme-dungeon h1 {
+    color: #d4af37;
+    text-shadow: 2px 2px #000;
+}
+
+.theme-dungeon .stats span {
+    color: #ddd;
+}
+
+.menu-item.theme-dungeon .preview-part:nth-child(1) {
+    background: #2b2b2b;
+}
+
+.menu-item.theme-dungeon .preview-part:nth-child(2) {
+    background: linear-gradient(135deg, #ccc 50%, #999 50%);
+}
+
+.menu-item.theme-dungeon .preview-part:nth-child(3) {
+    background: linear-gradient(135deg, #fff 50%, #ddd 50%);
+}
+
+.menu-item.theme-dungeon .preview-part:nth-child(4) {
+    background: linear-gradient(135deg, #5a4a42 50%, #3e332e 50%);
+}
+
+
+/* ================================================================
+   ARCADE THEME - Retro Pac-Style
+   ================================================================ */
+.theme-arcade {
+    --bg-color: #000;
+    --grid-bg: #000;
+    --grid-line: #111;
+    --player-color: #ff0;
+    --zombie-color: #f00;
+    --wall-color: #00f;
+    --exit-color: #ffb8ae;
+    --text-color: #fff;
+}
+
+.theme-arcade .grid-container {
+    background-color: var(--grid-bg);
+    border: 4px double #00f;
+    box-shadow: 0 0 15px #00f;
+}
+
+.theme-arcade .cell {
+    border: 1px dotted #222;
+}
+
+/* ARCADE PLAYER - Waka Waka */
+.theme-arcade .player {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.theme-arcade .player::after {
+    content: '';
+    width: 80%;
+    height: 80%;
+    background: #ff0;
+    border-radius: 50%;
+    clip-path: polygon(100% 0%, 100% 100%, 50% 50%, 0% 100%, 0% 0%);
+    /* Open mouth roughly */
+    animation: waka 0.3s infinite alternate;
+}
+
+@keyframes waka {
+    from {
+        clip-path: polygon(100% 0%, 100% 100%, 50% 50%, 0% 100%, 0% 0%);
+    }
+
+    to {
+        clip-path: polygon(100% 0%, 100% 100%, 0% 100%, 0% 0%);
+    }
+
+    /* Full circle illusion adjustments */
+    /* Hand-waving CSS clip-path for mouth open/close is tricky without complex polygons */
+    /* Simplified circular wedge */
+}
+
+/* Better Pacman using gradients */
+.theme-arcade .player::after {
+    clip-path: none;
+    background: conic-gradient(#ff0 30deg, #ff0 330deg, transparent 330deg, transparent 360deg);
+    border-radius: 50%;
+    animation: chomp 0.3s infinite alternate;
+    transform: rotate(30deg);
+}
+
+@keyframes chomp {
+    from {
+        background: conic-gradient(#ff0 30deg, #ff0 330deg, transparent 330deg, transparent 360deg);
+    }
+
+    to {
+        background: conic-gradient(#ff0 0deg, #ff0 360deg, transparent 0deg, transparent 0deg);
+    }
+}
+
+/* ARCADE ZOMBIE - Ghost */
+.theme-arcade .zombie {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.theme-arcade .zombie::after {
+    content: '';
+    width: 80%;
+    height: 80%;
+    background: #f00;
+    border-radius: 50% 50% 0 0;
+    position: relative;
+    /* Eyes */
+    background-image:
+        radial-gradient(circle at 30% 40%, white 20%, transparent 20%),
+        radial-gradient(circle at 70% 40%, white 20%, transparent 20%),
+        radial-gradient(circle at 35% 42%, blue 10%, transparent 10%),
+        radial-gradient(circle at 75% 42%, blue 10%, transparent 10%);
+}
+
+.theme-arcade .zombie {
+    filter: drop-shadow(0 0 5px #f00);
+}
+
+/* ARCADE WALL - Blue Lines */
+.theme-arcade .wall {
+    background: transparent !important;
+    box-shadow: inset 0 0 0 2px #00f !important;
+    border: none !important;
+    border-radius: 4px;
+}
+
+/* ARCADE EXIT - Fruit/Cherry */
+.theme-arcade .exit {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.theme-arcade .exit::after {
+    content: '🍒';
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Arcade Header */
+.theme-arcade h1 {
+    color: #ff0;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+}
+
+.theme-arcade .stats span {
+    color: #fff;
+    font-family: 'Courier New', monospace;
+}
+
+.menu-item.theme-arcade .preview-part:nth-child(1) {
+    background: #000;
+}
+
+.menu-item.theme-arcade .preview-part:nth-child(2) {
+    background: #ff0;
+    border-radius: 50%;
+}
+
+.menu-item.theme-arcade .preview-part:nth-child(3) {
+    background: #f00;
+    border-radius: 50% 50% 0 0;
+}
+
+.menu-item.theme-arcade .preview-part:nth-child(4) {
+    border: 2px solid #00f;
+    background: transparent;
+}
+
+
+/* ================================================================
+   OCEAN THEME - Fish vs Shark
+   ================================================================ */
+.theme-ocean {
+    --bg-color: #006994;
+    --grid-bg: #0077be;
+    --grid-line: #0099cc;
+    --player-color: #ff9900;
+    --zombie-color: #708090;
+    --wall-color: #ff7f50;
+    --exit-color: #fff;
+    --text-color: #e0f7fa;
+}
+
+.theme-ocean .grid-container {
+    background-color: var(--grid-bg);
+    border: 3px solid #005f7f;
+    box-shadow: inset 0 0 50px rgba(0, 0, 50, 0.3);
+    image-rendering: pixelated;
+    background-image:
+        radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 5%),
+        radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 5%),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 10%);
+    /* Bubbles */
+    animation: oceanShift 5s infinite alternate;
+}
+
+@keyframes oceanShift {
+    from {
+        background-position: 0 0, 0 0, 0 0;
+    }
+
+    to {
+        background-position: 0 -10px, 0 10px, 5px 0;
+    }
+}
+
+.theme-ocean .cell {
+    border: 1px solid var(--grid-line);
+}
+
+/* OCEAN PLAYER - Clownfish */
+.theme-ocean .player {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.theme-ocean .player::after {
+    content: '';
+    width: 80%;
+    height: 60%;
+    background: transparent;
+    position: relative;
+    /* Clownfish */
+    background-image:
+        linear-gradient(to right, transparent 15%, #ff9900 15%, #ff9900 30%, #fff 30%, #fff 40%, #000 40%, #000 42%, #ff9900 42%, #ff9900 60%, #fff 60%, #fff 70%, #000 70%, #000 72%, #ff9900 72%, #ff9900 85%, transparent 85%);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    animation: swim 1s ease-in-out infinite;
+}
+
+@keyframes swim {
+
+    0%,
+    100% {
+        transform: translateX(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateX(2px) rotate(5deg);
+    }
+}
+
+/* OCEAN ZOMBIE - Shark */
+.theme-ocean .zombie {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.theme-ocean .zombie::after {
+    content: '';
+    width: 90%;
+    height: 60%;
+    background: transparent;
+    position: relative;
+    /* Shark */
+    background-image:
+        linear-gradient(to right, transparent 10%, #708090 10%, #708090 90%, transparent 90%),
+        /* Body */
+        linear-gradient(to right, transparent 70%, #000 70%, #000 75%, transparent 75%),
+        /* Eye */
+        linear-gradient(to right, transparent 60%, #fff 60%, #fff 85%, transparent 85%);
+    /* Teeth */
+    background-size: 100% 70%, 100% 15%, 100% 15%;
+    background-position: center 10%, center 30%, center 70%;
+    background-repeat: no-repeat;
+    /* Fin */
+    filter: drop-shadow(0 -15px 0 #708090);
+    animation: sharkSwim 1.5s linear infinite;
+}
+
+@keyframes sharkSwim {
+    0% {
+        transform: translateX(-5%);
+    }
+
+    50% {
+        transform: translateX(5%);
+    }
+
+    100% {
+        transform: translateX(-5%);
+    }
+}
+
+/* OCEAN WALL - Coral */
+.theme-ocean .wall {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.theme-ocean .wall::after {
+    content: '';
+    width: 80%;
+    height: 90%;
+    background: transparent;
+    position: relative;
+    /* Coral */
+    background-image:
+        linear-gradient(to top, #ff7f50 80%, transparent 80%),
+        linear-gradient(to top, #ff7f50 60%, transparent 60%),
+        linear-gradient(to top, #ff7f50 70%, transparent 70%);
+    background-size: 20% 100%, 20% 100%, 20% 100%;
+    background-position: 20% 100%, 50% 100%, 80% 100%;
+    background-repeat: no-repeat;
+    border-radius: 10px;
+}
+
+/* OCEAN EXIT - Pearl in Clam */
+.theme-ocean .exit {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.theme-ocean .exit::after {
+    content: '';
+    width: 70%;
+    height: 70%;
+    background: radial-gradient(circle at 50% 40%, #fff 40%, #eee 60%, #ddd 70%);
+    /* Pearl */
+    border-radius: 50%;
+    box-shadow: 0 0 10px #fff, 0 15px 0 #e0e0e0;
+    /* Shell bottom */
+    top: -5px;
+}
+
+/* Ocean Header */
+.theme-ocean h1 {
+    color: #00ffff;
+    text-shadow: 0 0 10px #0000ff;
+}
+
+.theme-ocean .stats span {
+    color: #e0f7fa;
+}
+
+.menu-item.theme-ocean .preview-part:nth-child(1) {
+    background: #0077be;
+}
+
+.menu-item.theme-ocean .preview-part:nth-child(2) {
+    background: linear-gradient(135deg, #ff9900 50%, #fff 50%);
+}
+
+.menu-item.theme-ocean .preview-part:nth-child(3) {
+    background: linear-gradient(135deg, #708090 50%, #506070 50%);
+}
+
+.menu-item.theme-ocean .preview-part:nth-child(4) {
+    background: linear-gradient(135deg, #ff7f50 50%, #ff6347 50%);
+}
+
+
+/* ================================================================
+   HALLOWEEN THEME - Pumpkin vs Ghosts
+   ================================================================ */
+.theme-halloween {
+    --bg-color: #2e0854;
+    --grid-bg: #3d0a6e;
+    --grid-line: #5a189a;
+    --player-color: #ff7518;
+    --zombie-color: #ffffff;
+    --wall-color: #555555;
+    --exit-color: #ffff00;
+    --text-color: #ff9e42;
+}
+
+.theme-halloween .grid-container {
+    background-color: var(--grid-bg);
+    border: 3px solid #ff7518;
+    box-shadow: 0 0 20px rgba(255, 117, 24, 0.4);
+    image-rendering: pixelated;
+}
+
+.theme-halloween .cell {
+    border: 1px solid var(--grid-line);
+}
+
+/* HALLOWEEN PLAYER - Pumpkin */
+.theme-halloween .player {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.theme-halloween .player::after {
+    content: '';
+    width: 80%;
+    height: 70%;
+    background: transparent;
+    position: relative;
+    /* Pumpkin */
+    background-image:
+        linear-gradient(to right, transparent 45%, #0f0 45%, #0f0 55%, transparent 55%),
+        /* Stem */
+        linear-gradient(to right, transparent 15%, #ff7518 15%, #ff7518 85%, transparent 85%);
+    /* Body */
+    background-size: 100% 20%, 100% 80%;
+    background-position: center 0, center 100%;
+    background-repeat: no-repeat;
+    /* Face */
+    box-shadow: inset 10px -10px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 40%;
+}
+
+.theme-halloween .player::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    /* Jack-o-lantern face */
+    background-image:
+        linear-gradient(to right, transparent 30%, #000 30%, #000 40%, transparent 40%, transparent 60%, #000 60%, #000 70%, transparent 70%),
+        /* Eyes */
+        linear-gradient(to right, transparent 35%, #000 35%, #000 65%, transparent 65%);
+    /* Mouth */
+    background-size: 100% 15%, 100% 10%;
+    background-position: center 40%, center 70%;
+    background-repeat: no-repeat;
+    z-index: 2;
+}
+
+/* HALLOWEEN ZOMBIE - Ghost */
+.theme-halloween .zombie {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.theme-halloween .zombie::after {
+    content: '';
+    width: 70%;
+    height: 80%;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50% 50% 0 0;
+    box-shadow: 0 0 10px #fff;
+    /* Eyes */
+    background-image:
+        radial-gradient(circle at 30% 40%, #000 15%, transparent 15%),
+        radial-gradient(circle at 70% 40%, #000 15%, transparent 15%);
+    animation: ghostFloat 1.5s ease-in-out infinite;
+}
+
+@keyframes ghostFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: translateY(-5px);
+        opacity: 0.6;
+    }
+}
+
+/* HALLOWEEN WALL - Tombstone */
+.theme-halloween .wall {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.theme-halloween .wall::after {
+    content: 'RIP';
+    width: 70%;
+    height: 80%;
+    background: #555;
+    border-radius: 50% 50% 0 0;
+    color: #333;
+    font-size: 0.6rem;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10px;
+    border: 2px solid #333;
+    border-bottom: none;
+}
+
+/* HALLOWEEN EXIT - Haunted House / Candy Bowl */
+.theme-halloween .exit {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.theme-halloween .exit::after {
+    content: '🍬';
+    font-size: 2rem;
+    filter: drop-shadow(0 0 5px orange);
+    animation: candyBounce 1s infinite;
+}
+
+@keyframes candyBounce {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+/* Halloween Header */
+.theme-halloween h1 {
+    color: #ff7518;
+    text-shadow: 0 0 5px #5a189a;
+    font-family: 'Creepster', cursive, var(--font-header);
+}
+
+.theme-halloween .stats span {
+    color: #ff9e42;
+}
+
+.menu-item.theme-halloween .preview-part:nth-child(1) {
+    background: #3d0a6e;
+}
+
+.menu-item.theme-halloween .preview-part:nth-child(2) {
+    background: #ff7518;
+    border-radius: 40%;
+}
+
+.menu-item.theme-halloween .preview-part:nth-child(3) {
+    background: #fff;
+    border-radius: 50% 50% 0 0;
+}
+
+.menu-item.theme-halloween .preview-part:nth-child(4) {
+    background: #555;
+    border-radius: 50% 50% 0 0;
+}
+
+
+/* ================================================================
+   WINTER THEME - Penguin vs Polar Bear
+   ================================================================ */
+.theme-winter {
+    --bg-color: #a3d5ff;
+    --grid-bg: #e0f7fa;
+    --grid-line: #b2ebf2;
+    --player-color: #000;
+    --zombie-color: #fff;
+    --wall-color: #81d4fa;
+    --exit-color: #ff9800;
+    --text-color: #01579b;
+}
+
+.theme-winter .grid-container {
+    background-color: var(--grid-bg);
+    border: 3px solid #fff;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    image-rendering: pixelated;
+    background-image:
+        radial-gradient(circle, #fff 10%, transparent 10%),
+        /* Snow */
+        radial-gradient(circle, #fff 10%, transparent 10%);
+    background-size: 30px 30px;
+    background-position: 0 0, 15px 15px;
+}
+
+.theme-winter .cell {
+    border: 1px solid var(--grid-line);
+}
+
+/* WINTER PLAYER - Penguin */
+.theme-winter .player {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.theme-winter .player::after {
+    content: '';
+    width: 60%;
+    height: 80%;
+    background: #000;
+    border-radius: 50% 50% 40% 40%;
+    position: relative;
+    /* Stomach */
+    background-image:
+        radial-gradient(circle at 50% 60%, #fff 60%, transparent 60%);
+    background-size: 80% 60%;
+    background-position: center 60%;
+    background-repeat: no-repeat;
+    /* Beak and feet */
+    box-shadow:
+        0 -35px 0 -5px orange,
+        /* Beak (hacky) -> actually using pseudo */
+        -5px 15px 0 orange,
+        /* Left foot */
+        5px 15px 0 orange;
+    /* Right foot */
+}
+
+.theme-winter .player::before {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 35%;
+    width: 30%;
+    height: 10%;
+    background: orange;
+    /* Beak */
+    border-radius: 50%;
+    z-index: 2;
+}
+
+/* WINTER ZOMBIE - Polar Bear (or Yeti) */
+.theme-winter .zombie {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.theme-winter .zombie::after {
+    content: '';
+    width: 90%;
+    height: 80%;
+    background: #fff;
+    border-radius: 40% 40% 30% 30%;
+    position: relative;
+    box-shadow: inset -5px -5px 10px rgba(0, 0, 0, 0.1);
+    /* Face */
+    background-image:
+        radial-gradient(circle at 30% 40%, #000 10%, transparent 10%),
+        radial-gradient(circle at 70% 40%, #000 10%, transparent 10%),
+        radial-gradient(circle at 50% 60%, #000 15%, transparent 15%);
+    /* Nose */
+}
+
+/* WINTER WALL - Ice Block / Igloo */
+.theme-winter .wall {
+    background: rgba(129, 212, 250, 0.5) !important;
+    border: 1px solid #fff !important;
+    box-shadow: inset 0 0 10px #fff !important;
+    backdrop-filter: blur(2px);
+}
+
+.theme-winter .wall::after {
+    content: '';
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.6) 50%, transparent 60%);
+}
+
+/* WINTER EXIT - Fish / Fire */
+.theme-winter .exit {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.theme-winter .exit::after {
+    content: '🐟';
+    font-size: 2rem;
+    animation: flop 1s infinite;
+}
+
+@keyframes flop {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(20deg);
+    }
+}
+
+/* Winter Header */
+.theme-winter h1 {
+    color: #0277bd;
+    text-shadow: 0 0 5px #fff;
+}
+
+.theme-winter .stats span {
+    color: #01579b;
+}
+
+.menu-item.theme-winter .preview-part:nth-child(1) {
+    background: #e0f7fa;
+}
+
+.menu-item.theme-winter .preview-part:nth-child(2) {
+    background: #000;
+    border-radius: 50%;
+}
+
+.menu-item.theme-winter .preview-part:nth-child(3) {
+    background: #fff;
+    border-radius: 40%;
+}
+
+.menu-item.theme-winter .preview-part:nth-child(4) {
+    background: #81d4fa;
+    opacity: 0.7;
+}
+
+
+/* ================================================================
+   FOOD THEME - Pizza vs Chef
+   ================================================================ */
+.theme-food {
+    --bg-color: #fff8e1;
+    --grid-bg: #fff;
+    --grid-line: #ffe082;
+    --player-color: #ffca28;
+    --zombie-color: #d32f2f;
+    --wall-color: #795548;
+    --exit-color: #4caf50;
+    --text-color: #bf360c;
+}
+
+.theme-food .grid-container {
+    background-color: var(--grid-bg);
+    border: 3px solid #bf360c;
+    background-image:
+        radial-gradient(#ffe082 20%, transparent 20%),
+        radial-gradient(#ffe082 20%, transparent 20%);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+}
+
+.theme-food .cell {
+    border: 1px dashed var(--grid-line);
+}
+
+/* FOOD PLAYER - Pizza Slice */
+.theme-food .player {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.theme-food .player::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 40px solid #ffca28;
+    /* Cheese */
+    position: relative;
+    top: 5px;
+    filter: drop-shadow(0 -5px 0 #d84315);
+    /* Crust */
+}
+
+.theme-food .player::before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #d32f2f;
+    /* Pepperoni */
+    border-radius: 50%;
+    box-shadow:
+        10px 15px 0 #d32f2f,
+        -5px 25px 0 #d32f2f;
+    top: 5px;
+    left: calc(50% - 4px);
+    z-index: 2;
+}
+
+/* FOOD ZOMBIE - Chef / Knife */
+.theme-food .zombie {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.theme-food .zombie::after {
+    content: '👨‍🍳';
+    font-size: 2rem;
+    animation: chop 0.5s infinite alternate;
+}
+
+@keyframes chop {
+    from {
+        transform: rotate(-10deg);
+    }
+
+    to {
+        transform: rotate(10deg);
+    }
+}
+
+/* FOOD WALL - Pot / Oven / Table */
+.theme-food .wall {
+    background: #795548 !important;
+    border: 2px solid #5d4037 !important;
+    border-radius: 4px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.theme-food .wall::after {
+    content: '';
+    width: 80%;
+    height: 80%;
+    background: #a1887f;
+    border-radius: 2px;
+}
+
+/* FOOD EXIT - Salad / Salad Bowl / Open Sign */
+.theme-food .exit {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.theme-food .exit::after {
+    content: '🥗';
+    font-size: 2rem;
+    filter: drop-shadow(0 0 5px #green);
+}
+
+/* Food Header */
+.theme-food h1 {
+    color: #d84315;
+    font-family: serif;
+    font-style: italic;
+}
+
+.theme-food .stats span {
+    color: #bf360c;
+}
+
+.menu-item.theme-food .preview-part:nth-child(1) {
+    background: #fff;
+}
+
+.menu-item.theme-food .preview-part:nth-child(2) {
+    background: #ffca28;
+    clip-path: polygon(50% 100%, 0 0, 100% 0);
+}
+
+.menu-item.theme-food .preview-part:nth-child(3) {
+    background: #fff;
+    border: 1px solid #d32f2f;
+}
+
+.menu-item.theme-food .preview-part:nth-child(4) {
+    background: #795548;
+}
+
+
+/* ================================================================
+   RETRO THEME - Game Boy Style
+   ================================================================ */
+.theme-retro {
+    --bg-color: #8bac0f;
+    --grid-bg: #9bbc0f;
+    --grid-line: #8bac0f;
+    --player-color: #306230;
+    --zombie-color: #0f380f;
+    --wall-color: #306230;
+    --exit-color: #0f380f;
+    --text-color: #0f380f;
+}
+
+.theme-retro .grid-container {
+    background-color: var(--grid-bg);
+    border: 4px solid #0f380f;
+    box-shadow: inset 0 0 10px rgba(15, 56, 15, 0.5);
+    background-image:
+        linear-gradient(rgba(139, 172, 15, 0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(139, 172, 15, 0.2) 1px, transparent 1px);
+    background-size: 4px 4px;
+}
+
+.theme-retro .cell {
+    border: 1px solid var(--grid-line);
+}
+
+/* RETRO PLAYER - 8-bit Sprite */
+.theme-retro .player {
+    background: var(--player-color) !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+.theme-retro .player::after {
+    content: '';
+    width: 60%;
+    height: 60%;
+    background: #9bbc0f;
+    position: relative;
+    top: 20%;
+    left: 20%;
+    box-shadow:
+        -4px -4px 0 #0f380f,
+        4px -4px 0 #0f380f;
+}
+
+/* RETRO ZOMBIE - 8-bit Monster */
+.theme-retro .zombie {
+    background: var(--zombie-color) !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+.theme-retro .zombie::after {
+    content: '';
+    width: 100%;
+    height: 80%;
+    background: transparent;
+    /* Pixel Invader shape using box-shadow */
+    box-shadow: inset 0 0 0 4px #9bbc0f;
+}
+
+/* RETRO WALL - Block */
+.theme-retro .wall {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: 4px solid #0f380f !important;
+    background-image:
+        linear-gradient(45deg, #306230 25%, transparent 25%, transparent 75%, #306230 75%, #306230),
+        linear-gradient(45deg, #306230 25%, transparent 25%, transparent 75%, #306230 75%, #306230);
+    background-size: 8px 8px;
+    background-position: 0 0, 4px 4px;
+}
+
+/* RETRO EXIT - Flag */
+.theme-retro .exit {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.theme-retro .exit::after {
+    content: 'P';
+    font-family: 'Press Start 2P', monospace;
+    /* Fallback if not loaded */
+    font-weight: bold;
+    color: #0f380f;
+    border: 2px solid #0f380f;
+    padding: 2px 4px;
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+/* Retro Header */
+.theme-retro h1 {
+    color: #0f380f;
+    font-family: 'Courier New', monospace;
+    letter-spacing: -1px;
+}
+
+.theme-retro .stats span {
+    color: #306230;
+    font-family: 'Courier New', monospace;
+}
+
+.menu-item.theme-retro .preview-part:nth-child(1) {
+    background: #9bbc0f;
+}
+
+.menu-item.theme-retro .preview-part:nth-child(2) {
+    background: #306230;
+}
+
+.menu-item.theme-retro .preview-part:nth-child(3) {
+    background: #0f380f;
+}
+
+.menu-item.theme-retro .preview-part:nth-child(4) {
+    background: #306230;
+    opacity: 0.8;
+}
+
+
+/* ================================================================
+   ROBOTS THEME - Bot vs Bot
+   ================================================================ */
+.theme-robots {
+    --bg-color: #263238;
+    --grid-bg: #37474f;
+    --grid-line: #546e7a;
+    --player-color: #29b6f6;
+    --zombie-color: #f44336;
+    --wall-color: #607d8b;
+    --exit-color: #00e676;
+    --text-color: #b0bec5;
+}
+
+.theme-robots .grid-container {
+    background-color: var(--grid-bg);
+    border: 2px solid #546e7a;
+    box-shadow: 0 0 10px #29b6f6;
+    background-image:
+        linear-gradient(0deg, transparent 24%, rgba(41, 182, 246, .1) 25%, rgba(41, 182, 246, .1) 26%, transparent 27%, transparent 74%, rgba(41, 182, 246, .1) 75%, rgba(41, 182, 246, .1) 76%, transparent 77%, transparent),
+        linear-gradient(90deg, transparent 24%, rgba(41, 182, 246, .1) 25%, rgba(41, 182, 246, .1) 26%, transparent 27%, transparent 74%, rgba(41, 182, 246, .1) 75%, rgba(41, 182, 246, .1) 76%, transparent 77%, transparent);
+    background-size: 50px 50px;
+}
+
+.theme-robots .cell {
+    border: 1px solid var(--grid-line);
+}
+
+/* ROBOT PLAYER - Friendly Bot */
+.theme-robots .player {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.theme-robots .player::after {
+    content: '';
+    width: 80%;
+    height: 80%;
+    background: #29b6f6;
+    mask: radial-gradient(circle at 30% 30%, black 10%, transparent 10%), radial-gradient(circle at 70% 30%, black 10%, transparent 10%);
+    /* Better shape with gradients */
+    background:
+        radial-gradient(circle at 35% 40%, #fff 10%, transparent 10%),
+        radial-gradient(circle at 65% 40%, #fff 10%, transparent 10%),
+        linear-gradient(#29b6f6 0%, #29b6f6 100%);
+    border-radius: 10px 10px 5px 5px;
+    border-bottom: 3px solid #0277bd;
+    box-shadow: 0 0 10px #29b6f6;
+}
+
+/* ROBOT ZOMBIE - Evil Bot */
+.theme-robots .zombie {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.theme-robots .zombie::after {
+    content: '';
+    width: 80%;
+    height: 80%;
+    background: #f44336;
+    border-radius: 5px;
+    /* Evil eyes */
+    background-image:
+        linear-gradient(135deg, #d32f2f 25%, transparent 25%),
+        radial-gradient(circle at 30% 40%, #ffeb3b 15%, transparent 15%),
+        radial-gradient(circle at 70% 40%, #ffeb3b 15%, transparent 15%);
+    box-shadow: 0 0 10px #f44336;
+    animation: twitch 0.2s infinite;
+}
+
+@keyframes twitch {
+    0% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(1px);
+    }
+
+    50% {
+        transform: translateX(0);
+    }
+
+    75% {
+        transform: translateX(-1px);
+    }
+}
+
+/* ROBOT WALL - Metal Crate */
+.theme-robots .wall {
+    background: #607d8b !important;
+    border: 1px solid #455a64 !important;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.theme-robots .wall::after {
+    content: '';
+    width: 80%;
+    height: 80%;
+    border: 2px dashed #37474f;
+}
+
+/* ROBOT EXIT - Energy Core */
+.theme-robots .exit {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.theme-robots .exit::after {
+    content: '';
+    width: 70%;
+    height: 70%;
+    background: #00e676;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #00e676;
+    animation: pulseCore 1s infinite alternate;
+}
+
+@keyframes pulseCore {
+    from {
+        box-shadow: 0 0 10px #00e676;
+        transform: scale(0.9);
+    }
+
+    to {
+        box-shadow: 0 0 30px #00e676;
+        transform: scale(1.1);
+    }
+}
+
+/* Robots Header */
+.theme-robots h1 {
+    color: #29b6f6;
+    font-family: monospace;
+    text-transform: uppercase;
+}
+
+.theme-robots .stats span {
+    color: #b0bec5;
+    font-family: monospace;
+}
+
+.menu-item.theme-robots .preview-part:nth-child(1) {
+    background: #37474f;
+}
+
+.menu-item.theme-robots .preview-part:nth-child(2) {
+    background: #29b6f6;
+    border-radius: 5px;
+}
+
+.menu-item.theme-robots .preview-part:nth-child(3) {
+    background: #f44336;
+    border-radius: 5px;
+}
+
+.menu-item.theme-robots .preview-part:nth-child(4) {
+    background: #607d8b;
+}

@@ -1,0 +1,17 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Metal Crate -->
+  <rect x="4" y="4" width="56" height="56" fill="#607D8B" stroke="#455A64" stroke-width="2"/>
+  
+  <!-- Cross pattern -->
+  <line x1="4" y1="4" x2="60" y2="60" stroke="#455A64" stroke-width="2"/>
+  <line x1="60" y1="4" x2="4" y2="60" stroke="#455A64" stroke-width="2"/>
+  
+  <!-- Inner Border -->
+  <rect x="12" y="12" width="40" height="40" fill="none" stroke="#455A64" stroke-width="2"/>
+  
+  <!-- Rivets -->
+  <circle cx="8" cy="8" r="2" fill="#CFD8DC"/>
+  <circle cx="56" cy="8" r="2" fill="#CFD8DC"/>
+  <circle cx="8" cy="56" r="2" fill="#CFD8DC"/>
+  <circle cx="56" cy="56" r="2" fill="#CFD8DC"/>
+</svg>

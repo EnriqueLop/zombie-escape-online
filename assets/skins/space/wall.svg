@@ -1,0 +1,25 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+  <!-- 16-bit Moon Rock / Block -->
+  <rect x="4" y="4" width="56" height="56" fill="#616161"/> <!-- Base Grey -->
+  
+  <!-- Highlights (Top/Left) -->
+  <rect x="4" y="4" width="56" height="4" fill="#9E9E9E"/>
+  <rect x="4" y="8" width="4" height="52" fill="#9E9E9E"/>
+  
+  <!-- Shadows (Bottom/Right) -->
+  <rect x="4" y="56" width="56" height="4" fill="#424242"/>
+  <rect x="56" y="4" width="4" height="56" fill="#424242"/>
+  
+  <!-- CRATERS -->
+  <rect x="12" y="12" width="12" height="12" fill="#424242"/>
+  <rect x="14" y="14" width="8" height="8" fill="#212121"/>
+  
+  <rect x="40" y="36" width="16" height="16" fill="#424242"/>
+  <rect x="42" y="38" width="12" height="12" fill="#212121"/>
+  
+  <rect x="36" y="10" width="8" height="8" fill="#424242"/>
+  <rect x="38" y="12" width="4" height="4" fill="#212121"/>
+  
+  <rect x="12" y="40" width="8" height="8" fill="#424242"/>
+  <rect x="14" y="42" width="4" height="4" fill="#212121"/>
+</svg>

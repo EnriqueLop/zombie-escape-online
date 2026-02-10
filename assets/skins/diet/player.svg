@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+  <path d="M6 2h4v3h-4z" fill="#f1c40f"/> <!-- Hair -->
+  <path d="M5 5h6v4h-6z" fill="#ffcdd2"/> <!-- Face -->
+  <path d="M6 6h1v1h-1zM9 6h1v1h-1z" fill="#000"/> <!-- Eyes -->
+  <path d="M4 9h8v5h-8z" fill="#3498db"/> <!-- Shirt/Body (Wide) -->
+  <path d="M4 14h3v2h-3zM9 14h3v2h-3z" fill="#2c3e50"/> <!-- Pants/Legs -->
+</svg>

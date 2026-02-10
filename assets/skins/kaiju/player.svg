@@ -1,0 +1,22 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Tracks -->
+  <rect x="8" y="44" width="12" height="16" fill="#37474F"/>
+  <rect x="44" y="44" width="12" height="16" fill="#37474F"/>
+  <line x1="8" y1="48" x2="20" y2="48" stroke="#000" stroke-width="2"/>
+  <line x1="8" y1="56" x2="20" y2="56" stroke="#000" stroke-width="2"/>
+  <line x1="44" y1="48" x2="56" y2="48" stroke="#000" stroke-width="2"/>
+  <line x1="44" y1="56" x2="56" y2="56" stroke="#000" stroke-width="2"/>
+  
+  <!-- Main Body -->
+  <path d="M16 28 L 48 28 L 52 44 L 12 44 Z" fill="#607D8B"/>
+  
+  <!-- Turret/Head -->
+  <rect x="24" y="16" width="16" height="12" rx="2" fill="#455A64"/>
+  
+  <!-- Cannon -->
+  <rect x="28" y="4" width="8" height="12" fill="#37474F"/>
+  <rect x="26" y="0" width="12" height="4" fill="#263238"/> <!-- Muzzle -->
+  
+  <!-- Cockpit Window -->
+  <rect x="26" y="18" width="12" height="6" fill="#81D4FA"/>
+</svg>

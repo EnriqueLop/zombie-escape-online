@@ -1,0 +1,22 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+  <!-- Flag Pole -->
+  <rect x="8" y="8" width="4" height="56" fill="#0F380F"/>
+  
+  <!-- Flag (Animated Checkered) -->
+  <rect x="12" y="8" width="40" height="24" fill="#306230"/>
+  
+  <!-- Checker Pattern -->
+  <rect x="12" y="8" width="8" height="8" fill="#8BAC0F"/>
+  <rect x="28" y="8" width="8" height="8" fill="#8BAC0F"/>
+  <rect x="44" y="8" width="8" height="8" fill="#8BAC0F"/>
+  
+  <rect x="20" y="16" width="8" height="8" fill="#8BAC0F"/>
+  <rect x="36" y="16" width="8" height="8" fill="#8BAC0F"/>
+  
+  <rect x="12" y="24" width="8" height="8" fill="#8BAC0F"/>
+  <rect x="28" y="24" width="8" height="8" fill="#8BAC0F"/>
+  <rect x="44" y="24" width="8" height="8" fill="#8BAC0F"/>
+  
+  <!-- Base -->
+  <rect x="4" y="56" width="12" height="8" fill="#0F380F"/>
+</svg>

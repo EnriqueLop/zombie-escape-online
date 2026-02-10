@@ -1,0 +1,23 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Body (Dark Green) -->
+  <path d="M16 60 Q 12 40 20 20 Q 32 4 44 20 Q 52 40 48 60 L 16 60 Z" fill="#2E7D32"/>
+  
+  <!-- Tail -->
+  <path d="M48 50 Q 60 55 60 40 Q 55 30 46 40" fill="#2E7D32"/>
+  
+  <!-- Spikes -->
+  <path d="M42 16 L 50 12 L 46 24" fill="#C62828"/>
+  <path d="M46 30 L 56 26 L 48 38" fill="#C62828"/>
+  <path d="M48 44 L 58 40 L 50 50" fill="#C62828"/>
+  
+  <!-- Belly -->
+  <path d="M22 60 Q 20 40 28 24 Q 36 24 38 40 Q 40 50 38 60 Z" fill="#A5D6A7" opacity="0.6"/>
+  
+  <!-- Eyes (Glowing) -->
+  <circle cx="26" cy="20" r="3" fill="#FFEE58"/>
+  <circle cx="38" cy="20" r="3" fill="#FFEE58"/>
+  
+  <!-- Mouth (Roaring) -->
+  <path d="M26 32 L 38 32 L 32 40 Z" fill="#000"/>
+  <path d="M28 32 L 30 36 L 36 32" fill="#FFF"/> <!-- Teeth -->
+</svg>

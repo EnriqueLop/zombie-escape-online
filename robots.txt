@@ -1,0 +1,15 @@
+# robots.txt for Zombie Escape Online
+
+# Allow all search engines to crawl everything
+User-agent: *
+Allow: /
+
+# Disallow Firebase internal paths
+Disallow: /__/
+
+# Sitemap location
+Sitemap: https://zombie-escape-online.com/sitemap.xml
+
+# Additional sitemaps (uncomment when created)
+# Sitemap: https://zombie-escape-online.com/sitemap-themes.xml
+# Sitemap: https://zombie-escape-online.com/sitemap-blog.xml

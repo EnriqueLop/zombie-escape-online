@@ -1,0 +1,16 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Ghost Body (Red) -->
+  <path d="M8 60 L8 28 Q 8 4 32 4 Q 56 4 56 28 L56 60 L48 52 L40 60 L32 52 L24 60 L16 52 L8 60 Z" fill="#F44336"/>
+  
+  <!-- Eyes (White) -->
+  <circle cx="22" cy="24" r="8" fill="#FFFFFF"/>
+  <circle cx="42" cy="24" r="8" fill="#FFFFFF"/>
+  
+  <!-- Pupils (Blue/Black - looking at player) -->
+  <circle cx="24" cy="24" r="3" fill="#2196F3">
+      <animate attributeName="cx" values="20;24;24;20" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="44" cy="24" r="3" fill="#2196F3">
+      <animate attributeName="cx" values="40;44;44;40" dur="2s" repeatCount="indefinite"/>
+  </circle>
+</svg>

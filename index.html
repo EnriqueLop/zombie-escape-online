@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self';
+                   script-src 'self' https://www.googletagmanager.com https://www.gstatic.com 'unsafe-inline';
+                   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+                   font-src 'self' https://fonts.gstatic.com;
+                   img-src 'self' data: https:;
+                   connect-src 'self' http://localhost:* https://www.google-analytics.com https://*.google-analytics.com https://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://www.gstatic.com;
+                   frame-src 'none';
+                   object-src 'none';">
+
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+
+    <!-- Browser Compatibility -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Zombie Escape Online - Free Turn-Based Puzzle Game with 15+ Themes</title>
+    <meta name="description"
+        content="Play free turn-based puzzle game with 15+ themes: zombies, pirates, space, dungeons, ocean, kaiju & more! Outsmart enemies on a grid. No download required. Desktop & mobile friendly.">
+    <meta name="keywords"
+        content="puzzle game, turn-based strategy, logic puzzle, browser game, free online game, zombie game, pirate game, space game, dungeon crawler, strategy game, daleks game, maze puzzle, escape game, retro game, pixel art game">
+    <meta name="author" content="Zombie Escape Online">
+    <meta name="publisher" content="Zombie Escape Online">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://zombie-escape-online.com/">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://zombie-escape-online.com/">
+    <meta property="og:title" content="Zombie Escape Online - 15+ Themes Puzzle Game">
+    <meta property="og:description"
+        content="Free turn-based puzzle game with zombies, pirates, space, dungeons & 12 more themes! Can you outsmart the enemies and escape? Play now!">
+    <meta property="og:image" content="https://zombie-escape-online.com/assets/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Zombie Escape Online - Free Puzzle Game">
+    <meta name="twitter:description" content="Turn-based puzzle game with 15+ themes. No download, play instantly!">
+    <meta name="twitter:image" content="https://zombie-escape-online.com/assets/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" sizes="48x48">
+    <link rel="icon" href="/assets/favicon-32x32.png" type="image/png" sizes="32x32">
+    <link rel="icon" href="/assets/favicon-16x16.png" type="image/png" sizes="16x16">
+
+    <!-- PWA / Mobile -->
+    <meta name="theme-color" content="#0a0a1a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/assets/icon-192.png">
+    <link rel="manifest" href="/manifest.json">
+
+    <link rel="stylesheet" href="styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Creepster&family=Orbitron:wght@400;700&family=Press+Start+2P&display=swap"
+        rel="stylesheet">
+
+    <!-- Google Analytics (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0RWV84PCEW"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-0RWV84PCEW');
+
+      // Track theme changes
+      function trackThemeChange(themeName) {
+        gtag('event', 'theme_change', {
+          'theme_name': themeName,
+          'event_category': 'engagement'
+        });
+      }
+
+      // Track level start
+      function trackLevelStart(levelNumber) {
+        gtag('event', 'level_start', {
+          'level_number': levelNumber,
+          'event_category': 'gameplay'
+        });
+      }
+
+      // Track level completion
+      function trackLevelComplete(levelNumber, moves, traps) {
+        gtag('event', 'level_complete', {
+          'level_number': levelNumber,
+          'moves_used': moves,
+          'traps_used': traps,
+          'event_category': 'gameplay'
+        });
+      }
+
+      // Track game over
+      function trackGameOver(levelNumber, moves, reason) {
+        gtag('event', 'game_over', {
+          'level_number': levelNumber,
+          'moves_made': moves,
+          'reason': reason,
+          'event_category': 'gameplay'
+        });
+      }
+
+      // Track login
+      function trackLogin(method) {
+        gtag('event', 'login', {
+          'method': method
+        });
+      }
+
+      // Track share
+      function trackShare(levelNumber) {
+        gtag('event', 'share', {
+          'level_number': levelNumber,
+          'event_category': 'engagement'
+        });
+      }
+
+      // Track music toggle
+      function trackMusicToggle(isPlaying) {
+        gtag('event', 'music_toggle', {
+          'action': isPlaying ? 'play' : 'pause',
+          'event_category': 'engagement'
+        });
+      }
+    </script>
+</head>
+
+<body>
+    <!-- CRT Scanline Overlay -->
+    <div id="crt-overlay" aria-hidden="true"></div>
+
+    <!-- Skip Link for Keyboard Navigation -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Screen Reader Announcements -->
+    <div id="sr-announcer" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+    <div id="sr-announcer-assertive" aria-live="assertive" aria-atomic="true" class="sr-only"></div>
+
+    <!-- Intro Menu -->
+    <div id="intro-menu" role="main" aria-label="Main menu">
+        <div class="intro-container">
+            <h1 class="intro-title">ZOMBIE ESCAPE<br>ONLINE</h1>
+            <p class="intro-subtitle">TURN-BASED PUZZLE SURVIVAL</p>
+            <div id="intro-main-buttons" class="intro-buttons">
+                <button id="intro-play-btn" class="btn primary intro-btn">PLAY</button>
+                <button id="intro-skins-btn" class="btn secondary intro-btn">SKINS</button>
+                <button id="intro-settings-btn" class="btn secondary intro-btn">SETTINGS</button>
+            </div>
+            <div id="intro-difficulty-buttons" class="intro-buttons hidden">
+                <button class="btn secondary intro-btn intro-tier-btn" data-tier="beginner">BEGINNER</button>
+                <button class="btn secondary intro-btn intro-tier-btn" data-tier="easy">EASY</button>
+                <button class="btn secondary intro-btn intro-tier-btn" data-tier="medium">MEDIUM</button>
+                <button class="btn secondary intro-btn intro-tier-btn" data-tier="hard">HARD</button>
+                <button class="btn primary intro-btn intro-tier-btn" data-tier="expert">EXPERT</button>
+                <button id="intro-back-btn" class="btn secondary intro-btn">BACK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app" class="hidden">
+        <header role="banner">
+            <h1 id="header-title" role="link" tabindex="0" aria-label="Return to main menu">ZOMBIE ESCAPE ONLINE</h1>
+            <div class="stats" role="status" aria-live="polite">
+                <span id="level-display" aria-label="Current level">LVL: 01</span>
+                <span id="skin-display" aria-label="Current skin">SKIN: NEON</span>
+                <span id="score-display" aria-label="Turn counter">TURN: 00</span>
+            </div>
+        </header>
+
+        <main id="main-content" role="main">
+            <div id="grid" class="grid-container" role="grid" aria-label="Game board" tabindex="0">
+                <!-- Grid items generated by JS -->
+            </div>
+
+            <div id="message-overlay" class="hidden" role="dialog" aria-labelledby="message-title" aria-describedby="message-subtitle" aria-modal="true">
+                <h2 id="message-title">GAME OVER</h2>
+                <p id="message-subtitle">The horde caught you.</p>
+                <div class="actions">
+                    <button id="restart-btn" class="btn primary" aria-label="Restart current level">REBOOT SYSTEM</button>
+                    <button id="share-btn" class="btn secondary" aria-label="Share game result to clipboard">SHARE LOGS</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- FAQ Section for SEO -->
+        <section id="faq-section" style="display: none;">
+            <h2>Frequently Asked Questions</h2>
+            <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <h3 itemprop="name">Is Zombie Escape Online free to play?</h3>
+                <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                    <p itemprop="text">Yes! Zombie Escape Online is completely free to play with no hidden costs, no required downloads, and no ads during gameplay.</p>
+                </div>
+            </div>
+            <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <h3 itemprop="name">Do I need to download or install anything?</h3>
+                <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                    <p itemprop="text">No download required! Play instantly in your web browser on desktop or mobile. The game runs entirely online.</p>
+                </div>
+            </div>
+            <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <h3 itemprop="name">What themes are available in the game?</h3>
+                <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                    <p itemprop="text">Choose from 15+ unique visual themes including: Neon Zombies, Pirate Adventure, Space Aliens, Dungeon Knights, Ocean Sharks, Kaiju Monsters, Spooky Forest, Indiana Explorer, Classic Arcade, Halloween Pumpkins, Winter Penguins, Jungle Safari, Food Frenzy, Retro Game Boy, and Battle Robots.</p>
+                </div>
+            </div>
+            <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <h3 itemprop="name">Can I play on mobile devices?</h3>
+                <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                    <p itemprop="text">Yes! The game is fully optimized for mobile with touch controls and swipe gestures. Works on iPhone, iPad, Android phones and tablets.</p>
+                </div>
+            </div>
+            <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <h3 itemprop="name">How do I save my progress?</h3>
+                <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                    <p itemprop="text">Click the LOGIN button and sign in with your Google account to automatically save your progress, highest level reached, and theme preferences across devices.</p>
+                </div>
+            </div>
+            <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <h3 itemprop="name">What type of game is this?</h3>
+                <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                    <p itemprop="text">Zombie Escape Online is a turn-based tactical puzzle strategy game inspired by classic games like Daleks and Rodent's Revenge. Each move counts as you navigate grid-based levels, avoiding enemies that move twice as fast as you.</p>
+                </div>
+            </div>
+            <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <h3 itemprop="name">Are there different difficulty levels?</h3>
+                <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                    <p itemprop="text">Yes! The game features progressive difficulty with increasingly challenging levels. Start with easy tutorial levels and work your way up to complex puzzles with multiple enemies and intricate maze layouts.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer role="contentinfo">
+            <div class="controls-hint">
+                <span class="desktop-hint">USE [ARROW KEYS] TO MOVE</span>
+                <span class="mobile-hint">SWIPE TO MOVE</span>
+            </div>
+
+            <!-- Mobile Controls (Visible only on touch devices via CSS) -->
+            <nav id="mobile-controls" aria-label="Mobile game controls">
+                <button class="dpad-btn up" data-dir="up" aria-label="Move up">▲</button>
+                <div class="dpad-row">
+                    <button class="dpad-btn left" data-dir="left" aria-label="Move left">◀</button>
+                    <button class="dpad-btn down" data-dir="down" aria-label="Move down">▼</button>
+                    <button class="dpad-btn right" data-dir="right" aria-label="Move right">▶</button>
+                </div>
+            </nav>
+
+            <div class="audio-controls">
+                <button id="music-btn" class="btn secondary btn-small" aria-label="Toggle background music">MUSIC: OFF</button>
+            </div>
+            <div class="bmc-link">
+                <a href="https://buymeacoffee.com/elopcast" target="_blank" rel="noopener noreferrer">BUY ME A COFFEE</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- auth-container moved inside #app header -->
+
+    <!-- Generic Fullscreen Menu Overlay - Outside #app for proper z-index layering -->
+    <div id="fullscreen-menu-overlay" class="hidden" role="dialog" aria-labelledby="menu-title" aria-modal="true">
+        <div class="menu-container">
+            <h2 id="menu-title">MENU TITLE</h2>
+            <div id="menu-grid" class="menu-grid" role="list">
+                <!-- Items generated by JS -->
+            </div>
+            <button id="menu-close-btn" class="btn secondary" aria-label="Close menu">CLOSE</button>
+        </div>
+    </div>
+
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-consent-banner" class="cookie-banner hidden" role="dialog" aria-labelledby="cookie-title" aria-describedby="cookie-description" aria-hidden="true">
+        <div class="cookie-content">
+            <div class="cookie-ascii">
+                <pre aria-hidden="true">
+┌─────────────────────┐
+│  ╔═╗╔═╗╔═╗╦╔═╦╔═╗  │
+│  ║  ║ ║║ ║╠╩╗║║╣   │
+│  ╚═╝╚═╝╚═╝╩ ╩╩╚═╝  │
+└─────────────────────┘</pre>
+            </div>
+            <h2 id="cookie-title" class="cookie-title">🍪 COOKIE PROTOCOL DETECTED</h2>
+            <p id="cookie-description" class="cookie-description">
+                <strong>SYSTEM NOTICE:</strong> This terminal uses cookies and local storage to:
+            </p>
+            <ul class="cookie-list">
+                <li><span class="cookie-icon">▸</span> Save your game progress (Level & Settings)</li>
+                <li><span class="cookie-icon">▸</span> Remember your theme preferences</li>
+                <li><span class="cookie-icon">▸</span> Track anonymous gameplay stats (Google Analytics)</li>
+                <li><span class="cookie-icon">▸</span> Improve your gaming experience</li>
+            </ul>
+            <p class="cookie-description">
+                <strong>NO PERSONAL DATA SOLD.</strong> Your email stays private.
+                <button id="cookie-settings-btn" class="cookie-link">View Privacy Policy</button>
+            </p>
+            <div class="cookie-actions">
+                <button id="cookie-accept-btn" class="btn primary" aria-label="Accept cookies and continue">
+                    ✓ ACCEPT ALL
+                </button>
+                <button id="cookie-decline-btn" class="btn secondary" aria-label="Decline cookies">
+                    ✗ DECLINE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div id="privacy-policy-modal" class="privacy-modal hidden" role="dialog" aria-labelledby="privacy-title" aria-modal="true" aria-hidden="true">
+        <div class="privacy-content">
+            <div class="privacy-header">
+                <pre class="privacy-ascii" aria-hidden="true">
+╔═══════════════════════════════════════╗
+║  PRIVACY & COOKIE POLICY - v1.0.0     ║
+║  ═══════════════════════════════════  ║
+║  SYSTEM STATUS: [■■■■■■■■■■] 100%     ║
+╚═══════════════════════════════════════╝</pre>
+                <h2 id="privacy-title">🔒 PRIVACY PROTOCOL</h2>
+            </div>
+
+            <div class="privacy-body">
+                <section class="privacy-section">
+                    <h3>📊 WHAT DATA WE COLLECT</h3>
+                    <div class="privacy-box">
+                        <p><strong>1. LOCAL STORAGE (Required)</strong></p>
+                        <ul>
+                            <li>• Game progress (current level)</li>
+                            <li>• Theme preferences (selected skin)</li>
+                            <li>• Accessibility settings</li>
+                            <li>• Music preferences (on/off)</li>
+                        </ul>
+                        <p class="privacy-note">⚠️ STORED ON YOUR DEVICE ONLY. Never leaves your browser.</p>
+                    </div>
+
+                    <div class="privacy-box">
+                        <p><strong>2. COOKIES (Authentication)</strong></p>
+                        <ul>
+                            <li>• Firebase Auth tokens (when logged in)</li>
+                            <li>• Session management</li>
+                        </ul>
+                        <p class="privacy-note">⚠️ REQUIRED FOR LOGIN. Encrypted by Firebase.</p>
+                    </div>
+
+                    <div class="privacy-box">
+                        <p><strong>3. ANALYTICS (Optional)</strong></p>
+                        <ul>
+                            <li>• Google Analytics events (level starts, completions)</li>
+                            <li>• Anonymous gameplay statistics</li>
+                            <li>• Browser type & device info</li>
+                        </ul>
+                        <p class="privacy-note">⚠️ ANONYMOUS DATA. No personal information tracked.</p>
+                    </div>
+                </section>
+
+                <section class="privacy-section">
+                    <h3>🛡️ HOW WE USE YOUR DATA</h3>
+                    <div class="privacy-box">
+                        <ul>
+                            <li>✓ Save your game progress across sessions</li>
+                            <li>✓ Remember your visual theme choice</li>
+                            <li>✓ Improve gameplay experience</li>
+                            <li>✓ Understand which levels are hardest</li>
+                            <li>✗ We DO NOT sell your data</li>
+                            <li>✗ We DO NOT share with third parties (except Firebase/Google for auth)</li>
+                            <li>✗ We DO NOT track you across websites</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="privacy-section">
+                    <h3>🔐 YOUR RIGHTS</h3>
+                    <div class="privacy-box">
+                        <ul>
+                            <li>• <strong>Delete Data:</strong> Clear browser storage or logout</li>
+                            <li>• <strong>Export Data:</strong> Use browser DevTools > Application > Local Storage</li>
+                            <li>• <strong>Opt-out Analytics:</strong> Decline cookies on banner</li>
+                            <li>• <strong>Play Anonymously:</strong> Don't login (progress not saved)</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="privacy-section">
+                    <h3>🍪 COOKIE DETAILS</h3>
+                    <div class="privacy-box">
+                        <table class="cookie-table">
+                            <thead>
+                                <tr>
+                                    <th>Cookie</th>
+                                    <th>Purpose</th>
+                                    <th>Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>zeo_skin</td>
+                                    <td>Theme preference</td>
+                                    <td>Permanent</td>
+                                </tr>
+                                <tr>
+                                    <td>zeo_colorblind</td>
+                                    <td>Accessibility setting</td>
+                                    <td>Permanent</td>
+                                </tr>
+                                <tr>
+                                    <td>zeo_cookie_consent</td>
+                                    <td>Track consent choice</td>
+                                    <td>Permanent</td>
+                                </tr>
+                                <tr>
+                                    <td>Firebase Auth</td>
+                                    <td>Login session</td>
+                                    <td>Session</td>
+                                </tr>
+                                <tr>
+                                    <td>Google Analytics</td>
+                                    <td>Anonymous stats</td>
+                                    <td>2 years</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="privacy-section">
+                    <h3>📧 CONTACT</h3>
+                    <div class="privacy-box">
+                        <p>Questions about privacy? Email: <strong>privacy@zombie-escape-online.com</strong></p>
+                        <p>Last updated: February 9, 2026</p>
+                    </div>
+                </section>
+            </div>
+
+            <div class="privacy-footer">
+                <button id="privacy-close-btn" class="btn primary" aria-label="Close privacy policy">
+                    ✓ UNDERSTOOD
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEO Content (Hidden but crawlable) -->
+    <div style="position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;">
+        <h2>About Zombie Escape Online</h2>
+        <p>Zombie Escape Online is a free turn-based puzzle strategy game playable directly in your browser. No download or installation required. Challenge your tactical thinking as you navigate grid-based levels, avoiding enemies while finding the perfect escape route.</p>
+
+        <h3>Game Features</h3>
+        <ul>
+            <li>Turn-based strategic gameplay inspired by classic puzzle games like Daleks and Rodent's Revenge</li>
+            <li>15+ unique visual themes: Zombies, Pirates, Space, Dungeons, Ocean, Kaiju, Forest, Halloween, Winter, Arcade, Retro and more</li>
+            <li>Progressive difficulty with increasingly challenging levels</li>
+            <li>No download required - play instantly in your web browser</li>
+            <li>Mobile and desktop friendly with touch controls and keyboard support</li>
+            <li>Save your progress with Google login</li>
+            <li>Free to play with no ads during gameplay</li>
+        </ul>
+
+        <h3>How to Play</h3>
+        <p>Move your character one tile at a time using arrow keys or swipe controls. Enemies move two tiles toward you each turn. Use walls and strategic positioning to trap enemies or slip past them. Reach the exit to complete each level. Every move counts in this tactical puzzle game!</p>
+
+        <h3>Available Themes</h3>
+        <p>Customize your experience with multiple visual themes including: Neon Cyberpunk Zombies, Spooky Forest, Indiana Jones Adventure, Giant Kaiju Monster, Pirate Treasure Hunt, Jungle Safari, Space Aliens, Dungeon Knights, Classic Arcade, Ocean Sharks, Halloween Pumpkins, Winter Penguins, Food Frenzy, Retro Game Boy, and Battle Robots.</p>
+    </div>
+
+    <!-- JSON-LD Structured Data - Game -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoGame",
+      "name": "Zombie Escape Online",
+      "description": "Free turn-based puzzle strategy game with 15+ themes including zombies, pirates, space, dungeons and more. No download required.",
+      "url": "https://zombie-escape-online.com",
+      "genre": ["Puzzle", "Strategy", "Turn-Based"],
+      "gamePlatform": ["Web Browser", "Desktop", "Mobile"],
+      "operatingSystem": "Any (Browser-based)",
+      "applicationCategory": "Game",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
+      "audience": {
+        "@type": "PeopleAudience",
+        "suggestedMinAge": 7
+      },
+      "playMode": "SinglePlayer",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.5",
+        "ratingCount": "127",
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    }
+    </script>
+
+    <!-- JSON-LD Structured Data - FAQ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is Zombie Escape Online free to play?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes! Zombie Escape Online is completely free to play with no hidden costs, no required downloads, and no ads during gameplay."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need to download or install anything?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No download required! Play instantly in your web browser on desktop or mobile. The game runs entirely online."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What themes are available in the game?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Choose from 15+ unique visual themes including: Neon Zombies, Pirate Adventure, Space Aliens, Dungeon Knights, Ocean Sharks, Kaiju Monsters, Spooky Forest, Indiana Explorer, Classic Arcade, Halloween Pumpkins, Winter Penguins, Jungle Safari, Food Frenzy, Retro Game Boy, and Battle Robots."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I play on mobile devices?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes! The game is fully optimized for mobile with touch controls and swipe gestures. Works on iPhone, iPad, Android phones and tablets."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I save my progress?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Click the LOGIN button and sign in with your Google account to automatically save your progress, highest level reached, and theme preferences across devices."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What type of game is this?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Zombie Escape Online is a turn-based tactical puzzle strategy game inspired by classic games like Daleks and Rodent's Revenge. Each move counts as you navigate grid-based levels, avoiding enemies that move twice as fast as you."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Are there different difficulty levels?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes! The game features progressive difficulty with increasingly challenging levels. Start with easy tutorial levels and work your way up to complex puzzles with multiple enemies and intricate maze layouts."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- JSON-LD Structured Data - WebSite -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Zombie Escape Online",
+      "url": "https://zombie-escape-online.com",
+      "description": "Free turn-based puzzle strategy game with 15+ themes",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://zombie-escape-online.com/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- JSON-LD Structured Data - BreadcrumbList -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://zombie-escape-online.com"
+      }]
+    }
+    </script>
+
+    <script src="engine.js"></script>
+    <script type="module" src="game.js"></script>
+</body>
+
+</html>

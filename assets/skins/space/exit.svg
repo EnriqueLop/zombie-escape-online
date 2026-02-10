@@ -1,0 +1,24 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+  <!-- 16-bit Retro Rocket -->
+  
+  <!-- Fins -->
+  <rect x="8" y="44" width="12" height="16" fill="#D32F2F"/> <!-- Left Fin -->
+  <rect x="44" y="44" width="12" height="16" fill="#D32F2F"/> <!-- Right Fin -->
+  
+  <!-- Body -->
+  <rect x="20" y="16" width="24" height="40" fill="#EEEEEE"/>
+  
+  <!-- Nose Cone -->
+  <rect x="24" y="4" width="16" height="12" fill="#D32F2F"/>
+  <rect x="28" y="0" width="8" height="4" fill="#D32F2F"/>
+  
+  <!-- Window -->
+  <rect x="26" y="24" width="12" height="12" fill="#4FC3F7"/>
+  <rect x="28" y="26" width="4" height="4" fill="#E1F5FE"/> <!-- Reflection -->
+  
+  <!-- Engine Flame -->
+  <rect x="24" y="56" width="16" height="8" fill="#FFEB3B"/> <!-- Yellow -->
+  <rect x="28" y="60" width="8" height="4" fill="#FF5722"/> <!-- Orange center -->
+  
+  <animateTransform attributeName="transform" type="translate" values="0,0; 0,-2; 0,0" dur="0.5s" repeatCount="indefinite"/>
+</svg>

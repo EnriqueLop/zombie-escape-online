@@ -1,0 +1,19 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+  <!-- Gameboy Green Palette: #0F380F, #306230, #8BAC0F, #9BBC0F -->
+  
+  <!-- 8-bit Hero -->
+  <rect x="16" y="8" width="32" height="48" fill="#0F380F"/>
+  
+  <!-- Face -->
+  <rect x="20" y="12" width="24" height="16" fill="#8BAC0F"/>
+  <rect x="24" y="16" width="4" height="4" fill="#0F380F"/> <!-- Left Eye -->
+  <rect x="36" y="16" width="4" height="4" fill="#0F380F"/> <!-- Right Eye -->
+  
+  <!-- Body Detail -->
+  <rect x="20" y="32" width="24" height="20" fill="#306230"/>
+  <rect x="28" y="36" width="8" height="12" fill="#8BAC0F"/> <!-- Chest Symbol -->
+  
+  <!-- Arms -->
+  <rect x="8" y="36" width="8" height="12" fill="#0F380F"/>
+  <rect x="48" y="36" width="8" height="12" fill="#0F380F"/>
+</svg>

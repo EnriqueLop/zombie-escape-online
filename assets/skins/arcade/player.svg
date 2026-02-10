@@ -1,0 +1,15 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Pac-Man Body (Yellow Circle) -->
+  <circle cx="32" cy="32" r="28" fill="#FFD600"/>
+  
+  <!-- Mouth (Animated Wedge) -->
+  <path d="M32 32 L60 16 A 28 28 0 0 1 60 48 Z" fill="#000000">
+    <animate attributeName="d" 
+             values="M32 32 L60 20 A 28 28 0 0 1 60 44 Z; M32 32 L60 4 A 28 28 0 0 1 60 60 Z; M32 32 L60 20 A 28 28 0 0 1 60 44 Z" 
+             dur="0.4s" 
+             repeatCount="indefinite"/>
+  </path>
+  
+  <!-- Eye (Optional, but adds character) -->
+  <!-- <circle cx="32" cy="16" r="4" fill="#000"/> -->
+</svg>

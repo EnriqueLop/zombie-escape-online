@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+  <path d="M4 4h8v3h-8z" fill="#f39c12"/> <!-- Top Bun -->
+  <path d="M3 7h10v2h-10z" fill="#27ae60"/> <!-- Lettuce -->
+  <path d="M3 9h10v2h-10z" fill="#c0392b"/> <!-- Patty -->
+  <path d="M3 11h10v1h-10z" fill="#f1c40f"/> <!-- Cheese -->
+  <path d="M4 12h8v3h-8z" fill="#f39c12"/> <!-- Bottom Bun -->
+  <path d="M5 4h1v1h-1zM7 5h1v1h-1zM10 4h1v1h-1z" fill="#f1c40f"/> <!-- Seeds -->
+</svg>

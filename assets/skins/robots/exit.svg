@@ -1,0 +1,20 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Base -->
+  <ellipse cx="32" cy="52" rx="20" ry="8" fill="#37474F"/>
+  
+  <!-- Core Holder -->
+  <path d="M22 48 L22 30" stroke="#546E7A" stroke-width="4"/>
+  <path d="M42 48 L42 30" stroke="#546E7A" stroke-width="4"/>
+  
+  <!-- Energy Core -->
+  <circle cx="32" cy="30" r="14" fill="#00E676">
+    <animate attributeName="r" values="14;16;14" dur="1s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.8;1;0.8" dur="1s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Glow Rings -->
+  <circle cx="32" cy="30" r="20" fill="none" stroke="#00E676" stroke-width="1" opacity="0.4">
+     <animate attributeName="r" values="20;24;20" dur="2s" repeatCount="indefinite"/>
+     <animate attributeName="opacity" values="0.4;0;0.4" dur="2s" repeatCount="indefinite"/>
+  </circle>
+</svg>

@@ -1,0 +1,18 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Stone Wall -->
+  <rect x="0" y="0" width="64" height="64" fill="#616161"/>
+  
+  <!-- Bricks -->
+  <rect x="4" y="4" width="24" height="16" rx="2" fill="#9E9E9E"/>
+  <rect x="32" y="4" width="28" height="16" rx="2" fill="#757575"/>
+  
+  <rect x="4" y="24" width="36" height="16" rx="2" fill="#757575"/>
+  <rect x="44" y="24" width="16" height="16" rx="2" fill="#9E9E9E"/>
+  
+  <rect x="4" y="44" width="16" height="16" rx="2" fill="#9E9E9E"/>
+  <rect x="24" y="44" width="36" height="16" rx="2" fill="#757575"/>
+  
+  <!-- Moss -->
+  <path d="M4 60 Q 8 50 12 60" fill="#4CAF50"/>
+  <path d="M40 8 Q 44 0 48 8" fill="#4CAF50"/>
+</svg>

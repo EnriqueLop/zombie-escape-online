@@ -1,0 +1,20 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Rotor Blades -->
+  <rect x="4" y="16" width="56" height="2" fill="#212121">
+    <animateTransform attributeName="transform" type="rotate" from="0 32 17" to="360 32 17" dur="0.2s" repeatCount="indefinite"/>
+  </rect>
+  <rect x="30" y="14" width="4" height="8" fill="#424242"/>
+  
+  <!-- Body -->
+  <ellipse cx="32" cy="32" rx="16" ry="10" fill="#1976D2"/>
+  
+  <!-- Tail -->
+  <path d="M16 32 L 0 28 L 0 36 Z" fill="#1976D2"/>
+  <rect x="0" y="24" width="2" height="12" fill="#333"/> <!-- Tail Rotor -->
+  
+  <!-- Cockpit -->
+  <path d="M38 24 Q 48 32 38 40" fill="#81D4FA" opacity="0.8"/>
+  
+  <!-- Skids -->
+  <path d="M24 42 L 20 50 L 44 50 L 40 42" stroke="#424242" stroke-width="2" fill="none"/>
+</svg>

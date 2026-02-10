@@ -1,0 +1,19 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Arc way -->
+  <path d="M12 60 L12 24 Q 32 4 52 24 L52 60" stroke="#9E9E9E" stroke-width="6" fill="none"/>
+  
+  <!-- Darkness -->
+  <path d="M16 60 L16 28 Q 32 12 48 28 L48 60 Z" fill="#212121"/>
+  
+  <!-- Steps -->
+  <rect x="16" y="52" width="32" height="8" fill="#424242"/>
+  <rect x="20" y="44" width="24" height="8" fill="#616161"/>
+  <rect x="24" y="36" width="16" height="8" fill="#757575"/>
+  
+  <!-- Torch -->
+  <rect x="8" y="24" width="4" height="10" fill="#795548"/>
+  <circle cx="10" cy="22" r="3" fill="#FF5722">
+     <animate attributeName="r" values="3;4;3" dur="0.5s" repeatCount="indefinite"/>
+     <animate attributeName="fill" values="#FF5722;#FFEB3B;#FF5722" dur="0.5s" repeatCount="indefinite"/>
+  </circle>
+</svg>

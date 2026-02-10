@@ -1,0 +1,26 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Bottom Shell -->
+  <path d="M12 40 Q 32 60 52 40 L 48 52 Q 32 64 16 52 Z" fill="#E1BEE7"/>
+  <path d="M12 40 Q 32 60 52 40" fill="#F3E5F5"/>
+  
+  <!-- Top Shell (Open) -->
+  <path d="M12 24 Q 32 4 52 24 L 32 40 Z" fill="#E1BEE7"/>
+  <path d="M12 24 Q 32 4 52 24" fill="#F3E5F5"/>
+  
+  <!-- Pearl -->
+  <circle cx="32" cy="36" r="10" fill="#FFF"/>
+  <circle cx="32" cy="36" r="10" fill="url(#pearlGradient)"/>
+  
+  <defs>
+    <radialGradient id="pearlGradient" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FFF" />
+      <stop offset="100%" stop-color="#E1F5FE" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Shine/Glow -->
+  <circle cx="32" cy="36" r="14" stroke="#FFF" stroke-width="2" fill="none" opacity="0.6">
+     <animate attributeName="r" values="12;16;12" dur="1.5s" repeatCount="indefinite"/>
+     <animate attributeName="opacity" values="0.6;0;0.6" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+</svg>

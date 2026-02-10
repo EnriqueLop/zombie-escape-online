@@ -1,0 +1,28 @@
+# Security Policy
+
+## Reporting Security Issues
+
+If you discover a security vulnerability, please email security@zombie-escape-online.com instead of using the issue tracker.
+
+## Security Measures
+
+This application implements the following security measures:
+
+1. **Content Security Policy (CSP)**: Prevents XSS and injection attacks
+2. **Authentication**: Google OAuth via Firebase Auth
+3. **Data Protection**: User data scoped to authenticated user only
+4. **Input Sanitization**: All user inputs sanitized before DOM insertion
+5. **Dependency Updates**: Regular updates to Firebase SDK and dependencies
+6. **No PII Logging**: User emails and personal data never logged
+
+## Responsible Disclosure
+
+We appreciate responsible disclosure of security vulnerabilities. Please allow up to 90 days for a fix before public disclosure.
+
+## Security Best Practices for Contributors
+
+- Never commit API keys, tokens, or credentials
+- Use `textContent` instead of `innerHTML` for untrusted data
+- Validate all user inputs
+- Keep dependencies updated
+- Follow OWASP Top 10 guidelines
