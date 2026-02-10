@@ -1,0 +1,9 @@
+{
+  "name": "zombie-escape-online",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Turn-based puzzle/survival browser game",
+  "scripts": {
+    "build": "echo 'No build step — vanilla JS served as-is'"
+  }
+}
